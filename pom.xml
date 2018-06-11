@@ -2,21 +2,25 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>com.github.andreptb</groupId>
-		<artifactId>andreptb-component-parent</artifactId>
-		<version>0.5.0</version>
-	</parent>
+	<groupId>com.mpobjects</groupId>
 	<artifactId>fitnesse-selenium-slim</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+	<version>1.1.0-SNAPSHOT</version>
 	<name>fitnesse-selenium-slim</name>
 	<description>FitNesse Selenium fixture in slim format. Allows running selenium commands similar to firefox IDE plugin.</description>
-	<url>https://github.com/andreptb/fitnesse-selenium-slim</url>
+	<url>https://github.com/mpobjects/fitnesse-selenium-slim</url>
 
 	<developers>
 		<developer>
 			<name>Andre Albino Pereira</name>
 			<url>https://github.com/andreptb</url>
+			<roles>
+				<role>Original Developer</role>
+			</roles>
+		</developer>
+		<developer>
+			<name>Michiel Hendriks</name>
+			<organization>MP Objects BV</organization>
+			<organizationUrl>http://www.mp-objects.com</organizationUrl>
 		</developer>
 	</developers>
 
@@ -29,15 +33,240 @@
 	</licenses>
 
 	<scm>
-		<connection>scm:git:git://github.com/andreptb/fitnesse-selenium-slim.git</connection>
-		<developerConnection>scm:git:git@github.com:andreptb/fitnesse-selenium-slim.git</developerConnection>
-		<url>https://github.com/andreptb/fitnesse-selenium-slim</url>
+		<connection>scm:git:https://github.com/mpobjects/fitnesse-selenium-slim.git</connection>
+		<developerConnection>scm:git:https://github.com/mpobjects/fitnesse-selenium-slim.git</developerConnection>
+		<url>https://github.com/mpobjects/fitnesse-selenium-slim</url>
 	</scm>
 
 	<properties>
-        <fitnesse.version>20161106</fitnesse.version>
-        <selenium.version>3.12.0</selenium.version>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+		<fitnesse.version>20161106</fitnesse.version>
+		<selenium.version>3.12.0</selenium.version>
 	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>com.marvinformatics.formatter</groupId>
+				<artifactId>formatter-maven-plugin</artifactId>
+				<version>1.6.0.RC4</version>
+				<executions>
+					<execution>
+						<id>format-code</id>
+						<goals>
+							<goal>format</goal>
+						</goals>
+						<configuration>
+							<configFile>src/main/eclipse/java-formatter.xml</configFile>
+							<configJsFile>src/main/eclipse/javascript-formatter.xml</configJsFile>
+						</configuration>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>org.codehaus.plexus</groupId>
+						<artifactId>plexus-utils</artifactId>
+						<version>3.0.22</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>2.8</version>
+			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.1</version>
+				<executions>
+					<execution>
+						<id>prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+						<phase>process-test-sources</phase>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.eluder.coveralls</groupId>
+				<artifactId>coveralls-maven-plugin</artifactId>
+				<version>4.0.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>report</goal>
+						</goals>
+						<phase>site-deploy</phase>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.4</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.10.3</version>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<phase>package</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>findbugs-maven-plugin</artifactId>
+				<version>3.0.1</version>
+				<configuration>
+					<includeFilterFile>src/main/rules/findbugs.xml</includeFilterFile>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>2.16</version>
+				<configuration>
+					<configLocation>src/main/rules/checkstyle.xml</configLocation>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+				<version>3.5</version>
+				<configuration>
+					<rulesets>
+						<ruleset>src/main/rules/pmd.xml</ruleset>
+					</rulesets>
+				</configuration>				
+			</plugin>
+			<plugin>
+				<groupId>com.github.github</groupId>
+				<artifactId>site-maven-plugin</artifactId>
+				<version>0.12</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>site</goal>
+						</goals>
+						<phase>site-deploy</phase>
+						<configuration>
+							<message>Creating site for ${project.version}</message>
+							<repositoryOwner>andreptb</repositoryOwner>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<version>1.6</version>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-site-plugin</artifactId>
+				<version>3.4</version>
+				<configuration>
+					<skipDeploy>true</skipDeploy>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.maven.doxia</groupId>
+						<artifactId>doxia-module-markdown</artifactId>
+						<version>1.6</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<version>2.8.2</version>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.sonatype.plugins</groupId>
+				<artifactId>nexus-staging-maven-plugin</artifactId>
+				<version>1.6.5</version>
+				<extensions>true</extensions>
+				<executions>
+					<execution>
+						<id>nexus-deploy</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>deploy</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<serverId>ossrh</serverId>
+					<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+					<autoReleaseAfterClose>true</autoReleaseAfterClose>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>findbugs-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>jdepend-maven-plugin</artifactId>
+				<version>2.0</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-report-plugin</artifactId>
+				<version>2.18.1</version>
+			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</reporting>
 
 	<dependencies>
 		<dependency>
@@ -65,11 +294,11 @@
 			<artifactId>reflections</artifactId>
 			<version>0.9.11</version>
 		</dependency>
-        <dependency>
-            <groupId>one.util</groupId>
-            <artifactId>streamex</artifactId>
-            <version>0.6.2</version>
-        </dependency>
+		<dependency>
+			<groupId>one.util</groupId>
+			<artifactId>streamex</artifactId>
+			<version>0.6.2</version>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
