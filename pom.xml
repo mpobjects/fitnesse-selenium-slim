@@ -62,6 +62,7 @@
 							<goal>format</goal>
 						</goals>
 						<configuration>
+							<lineEnding>LF</lineEnding>
 							<configFile>src/main/eclipse/java-formatter.xml</configFile>
 							<configJsFile>src/main/eclipse/javascript-formatter.xml</configJsFile>
 						</configuration>
