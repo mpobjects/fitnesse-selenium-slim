@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset>
+  <rule ref="rulesets/java/design.xml/UnsynchronizedStaticDateFormatter">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/j2ee.xml/MDBAndSessionBeanNamingConvention">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/basic.xml/DoubleCheckedLocking">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/j2ee.xml/RemoteSessionInterfaceNamingConvention">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/design.xml/AvoidProtectedMethodInFinalClassNotExtending">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/controversial.xml/UseObjectForClearerAPI">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/basic.xml/ForLoopShouldBeWhileLoop">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/migrating.xml/ByteInstantiation">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/design.xml/BadComparison">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/comments.xml/CommentSize">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/basic.xml/CheckSkipResult">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/android.xml/CallSuperFirst">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/design.xml/UseLocaleWithCaseConversions">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/j2ee.xml/StaticEJBFieldShouldBeFinal">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/j2ee.xml/RemoteInterfaceNamingConvention">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/optimizations.xml/AvoidInstantiatingObjectsInLoops">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/design.xml/ClassWithOnlyPrivateConstructorsShouldBeFinal">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/basic.xml/DontUseFloatTypeForLoopIndices">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/design.xml/ConstructorCallsOverridableMethod">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/j2ee.xml/LocalInterfaceSessionNamingConvention">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/unusedcode.xml/UnusedModifier">
+    <priority>5</priority>
+  </rule>
+  <rule ref="rulesets/java/basic.xml/AvoidBranchingStatementAsLastInLoop">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/controversial.xml/BooleanInversion">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/migrating.xml/ShortInstantiation">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/controversial.xml/SuspiciousOctalEscape">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/controversial.xml/CallSuperInConstructor">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/optimizations.xml/UnnecessaryWrapperObjectCreation">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/j2ee.xml/LocalHomeNamingConvention">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/design.xml/AssignmentToNonFinalStatic">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/android.xml/CallSuperLast">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/optimizations.xml/PrematureDeclaration">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/design.xml/OptimizableToArrayCall">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/design.xml/EmptyMethodInAbstractClassShouldBeAbstract">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/optimizations.xml/SimplifyStartsWith">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/strings.xml/InefficientEmptyStringCheck">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/basic.xml/AvoidThreadGroup">
+    <priority>2</priority>
+  </rule>
+  <rule ref="rulesets/java/strings.xml/AppendCharacterWithChar">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/migrating.xml/LongInstantiation">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/codesize.xml/NcssTypeCount">
+    <priority>3</priority>
+    <properties>
+      <property name="minimum" value="1500" />
+    </properties>
+  </rule>
+  <rule ref="rulesets/java/javabeans.xml/MissingSerialVersionUID">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/strictexception.xml/AvoidThrowingNewInstanceOfSameException">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/design.xml/NonThreadSafeSingleton">
+    <priority>3</priority>
+    <properties>
+      <property name="checkNonStaticFields" value="false" />
+      <property name="checkNonStaticMethods" value="true" />
+    </properties>
+  </rule>
+  <rule ref="rulesets/java/controversial.xml/AvoidUsingNativeCode">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/design.xml/UseNotifyAllInsteadOfNotify">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/strings.xml/ConsecutiveLiteralAppends">
+    <priority>4</priority>
+    <properties>
+      <property name="threshold" value="1" />
+    </properties>
+  </rule>
+  <rule ref="rulesets/java/sunsecure.xml/ArrayIsStoredDirectly">
+    <priority>2</priority>
+  </rule>
+  <rule ref="rulesets/java/comments.xml/CommentContent">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/naming.xml/ShortClassName">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/naming.xml/ShortMethodName">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/coupling.xml/LoosePackageCoupling">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/design.xml/PositionLiteralsFirstInCaseInsensitiveComparisons">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/controversial.xml/AvoidUsingShortType">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/basic.xml/MisplacedNullCheck">
+    <priority>2</priority>
+  </rule>
+  <rule ref="rulesets/java/controversial.xml/UnnecessaryConstructor">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/j2ee.xml/DoNotUseThreads">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/controversial.xml/AvoidAccessibilityAlteration">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/design.xml/SimpleDateFormatNeedsLocale">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/controversial.xml/AvoidUsingVolatile">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/design.xml/AvoidProtectedFieldInFinalClass">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/basic.xml/ExtendsObject">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/design.xml/AccessorClassGeneration">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/basic.xml/CheckResultSet">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/design.xml/AvoidSynchronizedAtMethodLevel">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/unnecessary.xml/UnnecessaryReturn">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/naming.xml/BooleanGetMethodName">
+    <priority>3</priority>
+    <properties>
+      <property name="checkParameterizedMethods" value="false" />
+    </properties>
+  </rule>
+  <rule ref="rulesets/java/optimizations.xml/AddEmptyString">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/design.xml/GodClass">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/j2ee.xml/UseProperClassLoader">
+    <priority>2</priority>
+  </rule>
+  <rule ref="rulesets/java/unnecessary.xml/UnnecessaryFinalModifier">
+    <priority>5</priority>
+  </rule>
+  <rule ref="rulesets/jsp/basic-jsf.xml/DontNestJsfInJstlIteration">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/unusedcode.xml/UnusedFormalParameter">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/design.xml/CloseResource">
+    <priority>2</priority>
+    <properties>
+      <property name="types" value="Connection,Statement,ResultSet" />
+      <property name="closeTargets" value="close" />
+    </properties>
+  </rule>
+  <rule ref="rulesets/java/naming.xml/AvoidFieldNameMatchingMethodName">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/strings.xml/ConsecutiveAppendsShouldReuse">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/optimizations.xml/RedundantFieldInitializer">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/design.xml/UseVarargs">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/controversial.xml/AvoidPrefixingMethodParameters">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/logging-java.xml/GuardLogStatementJavaUtil">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/design.xml/LogicInversion">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/logging-jakarta-commons.xml/GuardLogStatement">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/logging-jakarta-commons.xml/GuardDebugLogging">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/codesize.xml/TooManyFields">
+    <priority>3</priority>
+    <properties>
+      <property name="maxfields" value="45" />
+    </properties>
+  </rule>
+  <rule ref="rulesets/java/design.xml/AbstractClassWithoutAbstractMethod">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/coupling.xml/LawOfDemeter">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/naming.xml/ShortVariable">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/imports.xml/TooManyStaticImports">
+    <priority>3</priority>
+    <properties>
+      <property name="maximumStaticImports" value="4" />
+    </properties>
+  </rule>
+  <rule ref="rulesets/java/controversial.xml/NullAssignment">
+    <priority>5</priority>
+  </rule>
+  <rule ref="rulesets/java/codesize.xml/ExcessiveClassLength">
+    <priority>3</priority>
+    <properties>
+      <property name="minimum" value="1000" />
+    </properties>
+  </rule>
+  <rule ref="rulesets/java/comments.xml/CommentRequired">
+    <priority>5</priority>
+  </rule>
+  <rule ref="rulesets/java/controversial.xml/AvoidLiteralsInIfCondition">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/strictexception.xml/AvoidCatchingGenericException">
+    <priority>5</priority>
+  </rule>
+  <rule ref="rulesets/java/design.xml/ConfusingTernary">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/strings.xml/InsufficientStringBufferDeclaration">
+    <priority>5</priority>
+  </rule>
+  <rule ref="rulesets/java/imports.xml/UnnecessaryFullyQualifiedName">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/sunsecure.xml/MethodReturnsInternalArray">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/controversial.xml/AvoidFinalLocalVariable">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/optimizations.xml/UseStringBufferForStringAppends">
+    <priority>4</priority>
+  </rule>
+  <rule ref="rulesets/java/design.xml/UncommentedEmptyConstructor">
+    <priority>5</priority>
+    <properties>
+      <property name="ignoreExplicitConstructorInvocation" value="false" />
+    </properties>
+  </rule>
+  <rule ref="rulesets/java/naming.xml/AvoidFieldNameMatchingTypeName">
+    <priority>4</priority>
+  </rule>
+</ruleset>
