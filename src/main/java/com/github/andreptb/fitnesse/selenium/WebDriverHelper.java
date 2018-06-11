@@ -88,6 +88,11 @@ public class WebDriverHelper {
 	private Map<String, WebElement> cachedElements = new LRUMap(64);
 
 	/**
+	 * Milliseconds to sleep after closing an alert message using the forceOpen command.
+	 */
+	private int forceOpenAlertDelay = 250;
+
+	/**
 	 * Creates a {@link WebDriver} instance with desired browser and capabilities. Capabilities should follow a key/value format
 	 *
 	 * @see WebDriverCapabilitiesHelper#parse(String, String, String)
@@ -369,4 +374,11 @@ public class WebDriverHelper {
 
 	}
 
+	public void setForceOpenAlertDelay(int delay) {
+		forceOpenAlertDelay = delay;
+	}
+
+	public int getForceOpenAlertDelay() {
+		return forceOpenAlertDelay;
+	}
 }
