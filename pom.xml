@@ -27,7 +27,7 @@
 	<licenses>
 		<license>
 			<name>The MIT License (MIT)</name>
-			<url>http://opensource.org/licenses/MIT</url>
+			<url>https://opensource.org/licenses/MIT</url>
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
@@ -79,18 +79,11 @@
 						</configuration>
 					</execution>
 				</executions>
-				<dependencies>
-					<dependency>
-						<groupId>org.codehaus.plexus</groupId>
-						<artifactId>plexus-utils</artifactId>
-						<version>3.0.22</version>
-					</dependency>
-				</dependencies>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-project-info-reports-plugin</artifactId>
-				<version>2.8</version>
+				<version>2.9</version>
 			</plugin>
 			<plugin>
 				<groupId>org.jacoco</groupId>
@@ -109,7 +102,7 @@
 			<plugin>
 				<groupId>org.eluder.coveralls</groupId>
 				<artifactId>coveralls-maven-plugin</artifactId>
-				<version>4.0.0</version>
+				<version>4.3.0</version>
 				<executions>
 					<execution>
 						<goals>
@@ -148,7 +141,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>findbugs-maven-plugin</artifactId>
-				<version>3.0.1</version>
+				<version>3.0.5</version>
 				<configuration>
 					<includeFilterFile>src/main/rules/findbugs.xml</includeFilterFile>
 				</configuration>
@@ -156,7 +149,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>2.16</version>
+				<version>2.17</version>
 				<configuration>
 					<configLocation>src/main/rules/checkstyle.xml</configLocation>
 				</configuration>
@@ -164,7 +157,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-pmd-plugin</artifactId>
-				<version>3.5</version>
+				<version>3.10.0</version>
 				<configuration>
 					<rulesets>
 						<ruleset>src/main/rules/pmd.xml</ruleset>
@@ -205,7 +198,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>
-				<version>3.4</version>
+				<version>3.7.1</version>
 				<configuration>
 					<skipDeploy>true</skipDeploy>
 				</configuration>
@@ -213,7 +206,7 @@
 					<dependency>
 						<groupId>org.apache.maven.doxia</groupId>
 						<artifactId>doxia-module-markdown</artifactId>
-						<version>1.6</version>
+						<version>1.8</version>
 					</dependency>
 				</dependencies>
 			</plugin>
@@ -275,7 +268,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-report-plugin</artifactId>
-				<version>2.18.1</version>
+				<version>2.21.0</version>
 			</plugin>
 			<plugin>
 				<groupId>org.jacoco</groupId>
