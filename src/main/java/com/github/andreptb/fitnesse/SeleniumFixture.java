@@ -226,7 +226,7 @@ public class SeleniumFixture {
 	 * | force open | <i>url</i> |
 	 * </code>
 	 * </p>
-	 * Navigates to the the desired url. When an alert pops up it will automatically accept it. When a pop up appears it will wait for 
+	 * Navigates to the the desired url. When an alert pops up it will automatically accept it. When a pop up appears it will wait for
 	 * a few milliseconds before returning.
 	 *
 	 * @param url to navigate
@@ -258,7 +258,7 @@ public class SeleniumFixture {
 	 * </p>
 	 * Time to wait after accepting an alert on a force open command.
 	 *
-	 * @param delay in milliseconds 
+	 * @param delay in milliseconds
 	 * @return previous value
 	 */
 	public int setForceOpenAlertDelay(int delay) {
