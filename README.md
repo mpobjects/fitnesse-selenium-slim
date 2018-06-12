@@ -1,8 +1,12 @@
-fitnesse-selenium-slim [![Build Status](https://travis-ci.org/andreptb/fitnesse-selenium-slim.svg?branch=master)](https://travis-ci.org/andreptb/fitnesse-selenium-slim) [![Coverage Status](https://coveralls.io/repos/andreptb/fitnesse-selenium-slim/badge.svg?branch=master)](https://coveralls.io/r/andreptb/fitnesse-selenium-slim?branch=master) [![javadoc](http://javadoc-badge.appspot.com/com.github.andreptb/fitnesse-selenium-slim.svg?label=javadoc)](http://andreptb.github.io/fitnesse-selenium-slim/apidocs/index.html) [![Maven  Central](https://img.shields.io/maven-central/v/com.github.andreptb/fitnesse-selenium-slim.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.andreptb/fitnesse-selenium-slim/)
-==============
+[![Build Status](https://travis-ci.org/mpobjects/fitnesse-selenium-slim.svg?branch=master)](https://travis-ci.org/mpobjects/fitnesse-selenium-slim)
+[![Maven Central](https://img.shields.io/maven-central/v/com.mpobjects/fitnesse-selenium-slim.svg)](http://www.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mpobjects%22%20AND%20a%3A%22fitnesse-selenium-slim%22)
+![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/https/oss.sonatype.org/com.mpobjects/fitnesse-selenium-slim.svg)
 
+# fitnesse-selenium-slim
 
 [FitNesse](https://github.com/unclebob/fitnesse) Selenium fixture in [slim format](http://www.fitnesse.org/FitNesse.UserGuide.WritingAcceptanceTests.SliM). Resembles [Xebium](http://xebia.github.io/Xebium/), but it&apos;s even more similar to [Selenium IDE Firefox Plugin](http://www.seleniumhq.org/projects/ide/). Also gets inspiration from [hsac-fitnesse-fixtures](https://github.com/fhoeben/hsac-fitnesse-fixtures) but doesn&apos;t try to &quot;simplify&quot; Selenium IDE development flow. This project is licensed under [MIT](LICENSE).
+
+This is a continued fork from [André Albino Pereira's original work](https://github.com/andreptb/fitnesse-selenium-slim).
 
 * [Getting started](#getting-started)
 * [Installation](#installation)
