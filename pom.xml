@@ -346,7 +346,7 @@
 			<id>travis-fitnesse-test</id>
 			<activation>
 				<property>
-					<name>env.TRAVIS_TAG</name>
+					<name>env.TRAVIS</name>
 				</property>
 			</activation>
 			<properties>
