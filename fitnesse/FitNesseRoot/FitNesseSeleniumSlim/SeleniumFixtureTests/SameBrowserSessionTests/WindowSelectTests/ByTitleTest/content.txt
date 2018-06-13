@@ -1,7 +1,7 @@
 | selenium |
 | ensure | open | http://google.com |
 | ensure | open window | https://github.com/andreptb |
-| action pause | 500 |
+| action pause | 1000 |
 | note | should still be in Google Window |
 | check | title | Google |
 | note | tests selector with regex |
