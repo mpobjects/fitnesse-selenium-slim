@@ -340,4 +340,40 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+
+	<profiles>
+		<profile>
+			<id>travis-fitnesse-test</id>
+			<activation>
+				<property>
+					<name>env.TRAVIS_TAG</name>
+				</property>
+			</activation>
+			<properties>
+				<webdriver.gecko.driver>${basedir}/drivers/geckodriver-linux-64bit</webdriver.gecko.driver>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>com.github.webdriverextensions</groupId>
+						<artifactId>webdriverextensions-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<goals>
+									<goal>install-drivers</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<drivers>
+								<driver>
+									<name>geckodriver</name>
+								</driver>
+							</drivers>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
