@@ -7,15 +7,13 @@ cache:
   directories:
   - "$HOME/.m2"
 install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -Dgpg.skip
-script: mvn test -B -DBROWSER=firefox -DHEADLESS=true -Dwebdriver.gecko.driver="`pwd`/drivers/geckodriver-linux-64bit"
+script: xvfb-run mvn test -B -DBROWSER=firefox -DHEADLESS=true -Dwebdriver.gecko.driver="`pwd`/drivers/geckodriver-linux-64bit"
 after_success:
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in $GPG_DIR/pubring.gpg.enc -out $GPG_DIR/pubring.gpg -d
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in $GPG_DIR/secring.gpg.enc -out $GPG_DIR/secring.gpg -d
 - "$GPG_DIR/publish.sh"
 env:
   global:
-  - BROWSER="firefox"
-  - HEADLESS="true"
   - GPG_DIR="`pwd`/deploy"
   - secure: UkCXewSZOsUn8E9aXPyfwNVANu5GSssXUHn5Csi0u/uuMQycf/ZBMblQZf6+CS4EgDKuX2BuwSEBy7Dnf46XIIgycokMQ48EFBqiFCUvDjOBG//a/LisJranuI5hfZKoGbMwuV97Ni072ppmmxQi/9EBC/3JdpcVwK89R2rO7AjKvz+e4jz3OmaBiLWzVrJRO4EiLo3oBTFwNNsbhvLN4UjHITVtsRODgeNYaiHIEq+GJelQ9F95zRENy6uPfs/cHdaccEjTogOsEGh24IMDUkb3aZkcNmS3dgwO5egD3Y8SWKnSza+/3hMIft4Yr+f2Ri28ik7ZkJ78PweGbDx8SPAuJ+JTrxCmH8+2osW3c3b62+1AVqFanmP8ZmB9QqnmBLRyU72YcI3gV9ue9Bq+3VOtyRKYTq5OivtkX80spIfVrQBV2I7BAQpgrKmc6kpml80nPO/hf38rVnlUmOrpfRQoHP0rjTSlwagDqmxYU0kGeiooTKqhSOsAh+pJrPI6iUwwSCMQNe5DtjusZuafjDRXgybOJBJxzek2OO9ledJDW4AK0rUSHtixJ0qP7qwAijQ8XcS+UD7FRqzRB1QZ7jtdofXZ4yTbOI9IaCr+myJBXnHZjGrVN0ug515VsBp172wvhW+kc9fgx/cgG9QVAOOHdrGOpVMIVKJmhA3IzM4=
   - secure: m1h1ltbLUpBQPEH/pH35ZdliqH3swDApGBsp321OiXsOcnUIMfs0J3gVrNr9jUd+DfzZKP8HPb6ep8gZX89A9qeEO+LUQDmoi3ZahPgE8jKwVPFnhd5rdvF7gbc6b8qR4rX2Cpc7FfUFdBrIPmLpKOWNLNT4IKgQNPTZoGIj/rFKHtdUj+BgRACZhPAZQ9VsjfyQrFxzssBfNJDZt8+Od2bYHvX3jxSmb1wxsgqMbvYtTjw2eWFAGIYwamyPKpooNd4SqUT6migw9An3n+nMj+Yp6zGqRRwyFm1XIEEMgQhNoND2NSqIkXxPikIxzu16yZiL0iI3iA8QDGjE3PcrrwsNGrjW4lUkCyA8/ozIZNv3ui//+e/sDDuO0tK/+oL3IS4LJcE82MhCdW7X+UfjFcB0sjaeQIMMGJVwq2jNQJlXFsBfXiOXknA6OU9hgKEg9O/wou3JJhT+evbwL2XaLwO8HomN1Ljvd7pjZsNulpkn4Xs8iioIrZZ6yYQU+oFaoPRM1A2QM5Hgw2WTq/Z1p7sjLLF1Uj9ZQmnArL3CJrgBicg5WgR0HLepUyW74+gYK16pjB8lK4qr/h2VmWV3YrjK+6EJ53I8kf2156eX58iMU4xsXpQqNyHxzWpiyMVkrEQ2ifi8QZHFi/al8z65T6vBcm4x2w7duGMR5bKJ3v0=
