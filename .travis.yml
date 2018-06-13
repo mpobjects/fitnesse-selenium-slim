@@ -12,7 +12,7 @@ install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -Dgpg.skip
 script: xvfb-run mvn test -B -DBROWSER=firefox -DHEADLESS=true -Dwebdriver.gecko.driver="`pwd`/drivers/geckodriver-linux-64bit"
 after_success:
 - mvn jacoco:report coveralls:report -DrepoToken=$COVERALLS_REPO_TOKEN
-- mvn site -DskipTests=true
+- mvn site -DskipTests=true --settings $GPG_DIR/settings.xml
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in $GPG_DIR/pubring.gpg.enc -out $GPG_DIR/pubring.gpg -d
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in $GPG_DIR/secring.gpg.enc -out $GPG_DIR/secring.gpg -d
 - "$GPG_DIR/publish.sh"
