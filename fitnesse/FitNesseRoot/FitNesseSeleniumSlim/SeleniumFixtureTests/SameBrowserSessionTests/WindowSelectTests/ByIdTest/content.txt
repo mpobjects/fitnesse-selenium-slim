@@ -1,6 +1,7 @@
 | selenium |
 | ensure | open | http://google.com |
 | ensure | open window | https://github.com/andreptb |
+| action pause | 500 |
 | show | current url |
 | note | should still be in Google Window |
 | check | title | Google |
@@ -9,6 +10,6 @@
 | show | current url |
 | ensure | select window | https://github.com/andreptb |
 | check | text | css=.vcard-username | andreptb |
-| ensure | close browser tab |
 | select window | $googleWindowId |
 | ensure | present | id=lst-ib |
+| ensure | close browser tab |
