@@ -1,4 +1,4 @@
-| selenium |
-| ensure | open | http://saucelabs.com/login |
-| type | foobar | in | name=username |
-| check | value | name=username | foobar |
+|selenium                                 |
+|ensure|open  |${BASE_URL}TypeTests       |
+|type  |foobar|in           |name=username|
+|check |value |name=username|foobar       |

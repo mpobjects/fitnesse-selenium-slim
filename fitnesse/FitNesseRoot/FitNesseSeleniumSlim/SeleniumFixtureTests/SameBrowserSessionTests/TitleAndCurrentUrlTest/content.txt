@@ -1,4 +1,4 @@
-| selenium |
-| ensure| open | https://github.com/andreptb/fitnesse-selenium-slim |
-| check | title | !-GitHub - andreptb/fitnesse-selenium-slim: FitNesse Selenium fixture in slim format-! |
-| check | current url | !-https://github.com/andreptb/fitnesse-selenium-slim-! |
+|selenium                                                                                                   |
+|ensure|open       |${BASE_URL}TitleAndCurrentUrlTest                                                       |
+|check |title      |!-TitleAndCurrentUrlTest-!                                                              |
+|check |current url|!-https://mpobjects.github.io/fitnesse-selenium-slim-test/tests/TitleAndCurrentUrlTest-!|

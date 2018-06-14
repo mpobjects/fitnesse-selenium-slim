@@ -1,8 +1,8 @@
-| selenium |
-| ensure | open | https://github.com/andreptb |
-| check | text | css=.vcard-username | andreptb |
-| note | use check text from variable |
-| $logintext= | text | css=.vcard-username |
-| check | text | css=.vcard-username | $logintext |
-| check not | text | css=.vcard-username | $invalidVariable |
-| show | screenshot |
+|selenium                                                   |
+|ensure     |open|${BASE_URL}TextTest                       |
+|check      |text|css=.vcard-username|fitnesse-selenium-slim|
+|note       |use check text from variable                   |
+|$logintext=|text|css=.vcard-username                       |
+|check      |text|css=.vcard-username|$logintext            |
+|check not  |text|css=.vcard-username|$invalidVariable      |
+|show       |screenshot                                     |

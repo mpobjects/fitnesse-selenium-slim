@@ -1,11 +1,11 @@
-| selenium |
-| ensure | open | http://google.com |
-| ensure | open window | https://github.com/andreptb |
-| action pause | 1000 |
-| note | should still be in Google Window |
-| check | title | Google |
-| ensure | select window | https://github.com/andreptb |
-| check | text | css=.vcard-username | andreptb |
-| select window | =~/https://www.google.com.+/ |
-| ensure | present | id=lst-ib |
-| ensure | close browser tab |
+|selenium                                                               |
+|ensure       |open         |${BASE_URL}!-WindowSelectTests/window-one-!|
+|ensure       |open window  |${BASE_URL}!-WindowSelectTests/window-two-!|
+|action pause |1000                                                     |
+|note         |should still be in Window #1                             |
+|check        |title        |!-WindowOne-!                              |
+|ensure       |select window|${BASE_URL}!-WindowSelectTests/window-two-!|
+|check        |text         |css=h1             |Window Two             |
+|select window|=~/https://.*/window-one/                                |
+|ensure       |present      |id=window-one                              |
+|ensure       |close browser tab                                        |
