@@ -46,7 +46,7 @@ BROWSER=firefox mvn test
 * To start FitNesse server and navigate through samples:
 
 ```
-mvn exec:java -Dexec.mainClass=fitnesseMain.FitNesseMain -Dexec.args="-d fitnesse" -DBROWSER=firefox
+mvn exec:java -Pinteractive-fitnesse -DBROWSER=firefox -Dwebdriver.gecko.driver=path/to/gecko/driver
 ```
 
 * To build this plugin and add to maven local repository:
