@@ -4,3 +4,5 @@
 |ensure|present|id=user_login        |
 |go back                             |
 |reject|present|id=user_login        |
+|go forward                          |
+|ensure|present|id=user_login        |

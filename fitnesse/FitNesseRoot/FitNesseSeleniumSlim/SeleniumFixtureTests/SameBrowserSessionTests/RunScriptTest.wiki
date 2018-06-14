@@ -1,0 +1,4 @@
+|selenium                                                                              |
+|ensure  |open      |${BASE_URL}big-form                                               |
+|$result=|run script|!-document.getElementsByName('02frstname')[0].value = 'FitNesse'-!|
+|check   |value     |name=02frstname                   |!-FitNesse-!                   |

@@ -1,0 +1,8 @@
+---
+Prune
+Test
+---
+|selenium                                                        |
+|ensure|open         |${BASE_URL}!-WindowSelectTests/window-one-!|
+|check |title        |!-WindowOne-!                              |
+|reject|select window|!-no_sunch_window-!                        |

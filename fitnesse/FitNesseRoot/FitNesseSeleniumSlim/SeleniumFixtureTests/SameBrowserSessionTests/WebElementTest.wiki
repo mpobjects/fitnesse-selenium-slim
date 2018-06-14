@@ -1,0 +1,7 @@
+|selenium                                        |
+|ensure   |open        |${BASE_URL}WebElementTest|
+|ensure   |click       |id=addItem               |
+|$element=|find element|id=specialElement        |
+|ensure   |present     |$element                 |
+|ensure   |click       |id=removeItem            |
+|reject   |present     |$element                 |

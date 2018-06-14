@@ -1,0 +1,6 @@
+|selenium                                |
+|open        |${BASE_URL}big-form        |
+|check       |last command duration|< 600|
+|note        |pause for 1.1 seconds      |
+|action pause|1100                       |
+|check       |last command duration|>0   |

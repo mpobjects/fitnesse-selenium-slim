@@ -303,7 +303,7 @@ public class SeleniumFixture {
 	 *
 	 * @return result Boolean result indication of assertion/operation
 	 */
-	public boolean goFoward() {
+	public boolean goForward() {
 		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(StringUtils.EMPTY, (driver, parsedLocator) -> driver.navigate().forward());
 	}
 
