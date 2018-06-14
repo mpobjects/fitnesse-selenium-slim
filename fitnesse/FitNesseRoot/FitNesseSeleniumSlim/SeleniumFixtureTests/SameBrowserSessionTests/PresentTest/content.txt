@@ -1,4 +1,4 @@
-| selenium |
-| ensure | open | http://saucelabs.com/login |
-| ensure | present | name=username |
-| reject | present | id=fieldNotOnThePage |
+|selenium                             |
+|ensure|open   |${BASE_URL}PresentTest|
+|ensure|present|name=username         |
+|reject|present|id=fieldNotOnThePage  |
