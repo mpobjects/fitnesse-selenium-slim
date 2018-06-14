@@ -1,6 +1,7 @@
 [![Build Status](https://travis-ci.org/mpobjects/fitnesse-selenium-slim.svg?branch=master)](https://travis-ci.org/mpobjects/fitnesse-selenium-slim)
 [![Maven Central](https://img.shields.io/maven-central/v/com.mpobjects/fitnesse-selenium-slim.svg)](http://www.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mpobjects%22%20AND%20a%3A%22fitnesse-selenium-slim%22)
 ![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/https/oss.sonatype.org/com.mpobjects/fitnesse-selenium-slim.svg)
+[![Coverage Status](https://coveralls.io/repos/github/mpobjects/fitnesse-selenium-slim/badge.svg?branch=master)](https://coveralls.io/github/mpobjects/fitnesse-selenium-slim?branch=master)
 
 # fitnesse-selenium-slim
 
