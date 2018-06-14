@@ -1,5 +1,7 @@
 !define TEST_SYSTEM {slim}
 
+!define BASE_URL {https://mpobjects.github.io/fitnesse-selenium-slim-test/tests/}
+
 !***> classpath config
 !path ${FITNESSE_CLASSPATH}
 ***!

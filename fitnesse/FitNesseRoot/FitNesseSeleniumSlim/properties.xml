@@ -1,11 +1,10 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <properties>
 <AddChild/>
 <Edit/>
 <Files/>
 <Properties/>
 <Prune/>
-
 <Search/>
 <Suite/>
 <Versions/>

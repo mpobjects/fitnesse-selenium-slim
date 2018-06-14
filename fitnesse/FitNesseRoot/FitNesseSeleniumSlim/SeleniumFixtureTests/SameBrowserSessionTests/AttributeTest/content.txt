@@ -1,6 +1,6 @@
-| selenium |
-| ensure | open | http://google.com |
-| check | attribute | name | in | id=lst-ib | q |
-| check | attribute | name | in | css=#lst-ib | q |
-| check | attribute | name | in | xpath=//input[@id='lst-ib'] | q |
-| check | attribute | id | in | name=q | lst-ib |
+|selenium                                                   |
+|ensure|open     |${BASE_URL}AttributeTest                  |
+|check |attribute|name|in|id=lst-ib                  |q     |
+|check |attribute|name|in|css=#lst-ib                |q     |
+|check |attribute|name|in|xpath=//input[@id='lst-ib']|q     |
+|check |attribute|id  |in|name=q                     |lst-ib|

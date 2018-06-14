@@ -1,5 +1,5 @@
-| selenium |
-| ensure | open | http://saucelabs.com/login |
-| click | link=Create an Account |
-| check | title | !-Sauce Labs: Sign Up for a Free Trial-! |
-| show | screenshot |
+|selenium                                             |
+|ensure|open |${BASE_URL}ClickByLinkTextSelectorTest  |
+|click |link=Create an Account                        |
+|check |title|!-Sauce Labs: Sign Up for a Free Trial-!|
+|show  |screenshot                                    |
