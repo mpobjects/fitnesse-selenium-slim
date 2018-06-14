@@ -55,7 +55,7 @@
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <github.global.server>github</github.global.server>
+		<github.global.server>github</github.global.server>
 
 		<fitnesse.version>20161106</fitnesse.version>
 		<selenium.version>3.12.0</selenium.version>
@@ -328,6 +328,50 @@
 	</dependencyManagement>
 
 	<profiles>
+		<profile>
+			<id>interactive-fitnesse</id>
+			<properties>
+				<!-- ensure these properties are set for fitnesse -->
+				<webdriver.gecko.driver>not-set</webdriver.gecko.driver>
+				<webdriver.chrome.driver>not-set</webdriver.chrome.driver>
+				<webdriver.ie.driver>not-set</webdriver.ie.driver>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>1.6.0</version>
+						<executions>
+							<execution>
+								<goals>
+									<goal>java</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<classpathScope>test</classpathScope>
+							<mainClass>fitnesseMain.FitNesseMain</mainClass>
+							<commandlineArgs>-d fitnesse -o -e 0 -p 8080</commandlineArgs>
+							<systemProperties>
+								<systemProperty>
+									<key>webdriver.gecko.driver</key>
+									<value>${webdriver.gecko.driver}</value>
+								</systemProperty>
+								<systemProperty>
+									<key>webdriver.chrome.driver</key>
+									<value>${webdriver.chrome.driver}</value>
+								</systemProperty>
+								<systemProperty>
+									<key>webdriver.ie.driver</key>
+									<value>${webdriver.ie.driver}</value>
+								</systemProperty>
+							</systemProperties>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 		<profile>
 			<id>travis-fitnesse-test</id>
 			<activation>
