@@ -42,22 +42,22 @@ Since the plugin tests itself with FitNesse, take a look at [this](fitnesse/FitN
 
 There are two properties you will need to define:
 
-    1 `BROWSER` the browser to use for testing
-    2 the webdriver location property. For firefox this property is named: `webdriver.gecko.driver`
+1.  `BROWSER` the browser to use for testing
+2.  the webdriver location property. For firefox this property is named: `webdriver.gecko.driver`
 
-* Execute the test suite:
+Execute the test suite:
 
 ```
 BROWSER=mvn test
 ```
 
-* To start FitNesse server and navigate through samples:
+To start FitNesse server and navigate through samples:
 
 ```
 mvn compile -Pinteractive-fitnesse
 ```
 
-* To build this plugin and add to maven local repository:
+To build this plugin and add to maven local repository:
 
 ```
 mvn install -Dgpg.skip
