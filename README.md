@@ -42,13 +42,13 @@ Since the plugin tests itself with FitNesse, take a look at [this](fitnesse/FitN
 
 There are two properties you will need to define:
 
-1.  `BROWSER` the browser to use for testing
+1.  `BROWSER` the browser to use for testing. For example `BROWSER=firefox`
 2.  the webdriver location property. For firefox this property is named: `webdriver.gecko.driver`
 
 Execute the test suite:
 
 ```
-BROWSER=mvn test
+mvn test
 ```
 
 To start FitNesse server and navigate through samples:
