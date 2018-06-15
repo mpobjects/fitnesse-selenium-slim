@@ -507,7 +507,7 @@ public class SeleniumFixture {
 	/**
 	 * <p>
 	 * <code>
-	 * | check | title | <i>title</i> |
+	 * | show | title |
 	 * </code>
 	 * </p>
 	 * Current page title
@@ -521,7 +521,7 @@ public class SeleniumFixture {
 	/**
 	 * <p>
 	 * <code>
-	 * | check | title | <i>title</i> | <i>title</i> |
+	 * | check | title | <i>title</i> |
 	 * </code>
 	 * </p>
 	 * To be used along slim check action. Will respect {@link #setWaitTimeout(int)} before triggering failure. If using selenium table, please ignore this action.
@@ -842,7 +842,7 @@ public class SeleniumFixture {
 	/**
 	 * <p>
 	 * <code>
-	 * | check | text | <i>locator</i> | <i>expectedValue</i> |
+	 * | show | text |
 	 * </code>
 	 * </p>
 	 * Gets the text of the current focused element. This works for any element that contains text. This command uses either the textContent (Mozilla-like browsers) or the innerText (IE-like browsers)
@@ -861,7 +861,7 @@ public class SeleniumFixture {
 	/**
 	 * <p>
 	 * <code>
-	 * | check | text | <i>locator</i> | <i>expectedValue</i> |
+	 * | check | text | <i>locator</i> |
 	 * </code>
 	 * </p>
 	 * Gets the text of an element. This works for any element that contains text. This command uses either the textContent (Mozilla-like browsers) or the innerText (IE-like browsers) of the element,
