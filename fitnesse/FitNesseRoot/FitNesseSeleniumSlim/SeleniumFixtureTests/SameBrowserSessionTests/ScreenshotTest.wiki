@@ -1,0 +1,4 @@
+|selenium                                |
+|ensure|open         |${BASE_URL}big-form|
+|show  |screenshot                       |
+|show  |screenshot of|id=form            |

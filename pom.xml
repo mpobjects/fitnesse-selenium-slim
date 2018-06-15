@@ -27,7 +27,7 @@
 	<licenses>
 		<license>
 			<name>The MIT License (MIT)</name>
-			<url>https://opensource.org/licenses/MIT</url>
+			<url>https://github.com/mpobjects/fitnesse-selenium-slim/raw/master/LICENSE</url>
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
@@ -335,15 +335,37 @@
 				<webdriver.gecko.driver>not-set</webdriver.gecko.driver>
 				<webdriver.chrome.driver>not-set</webdriver.chrome.driver>
 				<webdriver.ie.driver>not-set</webdriver.ie.driver>
+				
+				<formatter.skip>true</formatter.skip>
+				<fitnesse.port>8080</fitnesse.port>
 			</properties>
 			<build>
 				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
+						<version>3.1.1</version>
+						<executions>
+							<execution>
+								<id>classpath</id>
+								<phase>compile</phase>
+								<goals>
+									<goal>build-classpath</goal>
+								</goals>
+								<configuration>
+									<outputProperty>fitnesse.classpath</outputProperty>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
 					<plugin>
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>exec-maven-plugin</artifactId>
 						<version>1.6.0</version>
 						<executions>
 							<execution>
+								<id>exec-fitnesse</id>
+								<phase>compile</phase>
 								<goals>
 									<goal>java</goal>
 								</goals>
@@ -352,7 +374,7 @@
 						<configuration>
 							<classpathScope>test</classpathScope>
 							<mainClass>fitnesseMain.FitNesseMain</mainClass>
-							<commandlineArgs>-d fitnesse -o -e 0 -p 8080</commandlineArgs>
+							<commandlineArgs>-d fitnesse -o -e 0 -p ${fitnesse.port}</commandlineArgs>
 							<systemProperties>
 								<systemProperty>
 									<key>webdriver.gecko.driver</key>
@@ -365,6 +387,10 @@
 								<systemProperty>
 									<key>webdriver.ie.driver</key>
 									<value>${webdriver.ie.driver}</value>
+								</systemProperty>
+								<systemProperty>
+									<key>FITNESSE_CLASSPATH</key>
+									<value>${project.build.outputDirectory}${path.separator}${project.build.testOutputDirectory}${path.separator}${fitnesse.classpath}</value>
 								</systemProperty>
 							</systemProperties>
 						</configuration>
@@ -379,6 +405,9 @@
 					<name>env.TRAVIS</name>
 				</property>
 			</activation>
+			<properties>
+				<formatter.skip>true</formatter.skip>
+			</properties>
 			<build>
 				<plugins>
 					<plugin>
