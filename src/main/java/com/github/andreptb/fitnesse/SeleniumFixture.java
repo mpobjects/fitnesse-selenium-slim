@@ -1166,11 +1166,6 @@ public class SeleniumFixture {
 	 * | ensure | action move to element | <i>locator</i> |
 	 * </code>
 	 * </p>
-	 * <p>
-	 * <code>
-	 * | reject | action move to element | <i>locator</i> |
-	 * </code>
-	 * </p>
 	 * Moves the mouse to the first displayed element.
 	 * <p>
 	 * <b>Note</b>: Wait behavior won't work properly without selenium table
@@ -1189,6 +1184,24 @@ public class SeleniumFixture {
 		});
 	}
 
+	/**
+	 * <p>
+	 * <code>
+	 * | ensure | action move to element | <i>locator</i> | at | <i>x-offset</i> | and | <i>y-offset</i> |
+	 * </code>
+	 * </p>
+	 * Moves the mouse to the first displayed element with a given offset in pixels.
+	 * <p>
+	 * <b>Note</b>: Wait behavior won't work properly without selenium table
+	 *
+	 * @param locator
+	 *            an element locator
+	 * @param xOffset
+	 *            relative x offset in pixels
+	 * @param yOffset
+	 *            relative y offset in pixels
+	 * @return result Boolean result indication of assertion/operation
+	 */
 	public boolean actionMoveToElementAtAnd(String locator, int xOffset, int yOffset) {
 		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(locator, (driver, parsedLocator) -> {
 			Optional<WebElement> element = driver.findElements(parsedLocator.getBy()).stream().filter(WebElement::isDisplayed).findFirst();
@@ -1199,14 +1212,56 @@ public class SeleniumFixture {
 		});
 	}
 
+	/**
+	 * <p>
+	 * <code>
+	 * | ensure | action move by offset | <i>x-offset</i> | and | <i>y-offset</i> |
+	 * </code>
+	 * </p>
+	 * Moves with a given offset in pixels.
+	 * <p>
+	 * <b>Note</b>: Wait behavior won't work properly without selenium table
+	 *
+	 * @param xOffset
+	 *            relative x offset in pixels
+	 * @param yOffset
+	 *            relative y offset in pixels
+	 * @return result Boolean result indication of assertion/operation
+	 */
 	public boolean actionMoveByOffsetAnd(int xOffset, int yOffset) {
 		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(StringUtils.EMPTY, (driver, parsedLocator) -> new Actions(driver).moveByOffset(xOffset, yOffset).perform());
 	}
 
+	/**
+	 * <p>
+	 * <code>
+	 * | action click |
+	 * </code>
+	 * </p>
+	 * Press the left mouse button at the current location. Note that this performs a mouse operation rather than triggering the click event handler on an element.
+	 * <p>
+	 * <b>Note</b>: Wait behavior won't work properly without selenium table
+	 *
+	 * @return result Boolean result indication of assertion/operation
+	 */
 	public boolean actionClick() {
 		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(StringUtils.EMPTY, (driver, parsedLocator) -> new Actions(driver).click().perform());
 	}
 
+	/**
+	 * <p>
+	 * <code>
+	 * | ensure | action click | <i>selector</i> |
+	 * </code>
+	 * </p>
+	 * Move the mouse to the selector and press the left mouse button.
+	 * <p>
+	 * <b>Note</b>: Wait behavior won't work properly without selenium table
+	 *
+	 * @param locator
+	 *            an element locator
+	 * @return result Boolean result indication of assertion/operation
+	 */
 	public boolean actionClick(String locator) {
 		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(locator, (driver, parsedLocator) -> {
 			Optional<WebElement> element = driver.findElements(parsedLocator.getBy()).stream().filter(WebElement::isDisplayed).findFirst();
@@ -1217,10 +1272,36 @@ public class SeleniumFixture {
 		});
 	}
 
+	/**
+	 * <p>
+	 * <code>
+	 * | action click and hold |
+	 * </code>
+	 * </p>
+	 * Press the left mouse button at the current location and keep it down
+	 * <p>
+	 * <b>Note</b>: Wait behavior won't work properly without selenium table
+	 *
+	 * @return result Boolean result indication of assertion/operation
+	 */
 	public boolean actionClickAndHold() {
 		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(StringUtils.EMPTY, (driver, parsedLocator) -> new Actions(driver).clickAndHold().perform());
 	}
 
+	/**
+	 * <p>
+	 * <code>
+	 * | ensure | action click and hold | <i>selector</i> |
+	 * </code>
+	 * </p>
+	 * Move the mouse to the selector, press the left mouse button and keep it down.
+	 * <p>
+	 * <b>Note</b>: Wait behavior won't work properly without selenium table
+	 *
+	 * @param locator
+	 *            an element locator
+	 * @return result Boolean result indication of assertion/operation
+	 */
 	public boolean actionClickAndHold(String locator) {
 		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(locator, (driver, parsedLocator) -> {
 			Optional<WebElement> element = driver.findElements(parsedLocator.getBy()).stream().filter(WebElement::isDisplayed).findFirst();
@@ -1231,10 +1312,36 @@ public class SeleniumFixture {
 		});
 	}
 
+	/**
+	 * <p>
+	 * <code>
+	 * | action double click |
+	 * </code>
+	 * </p>
+	 * Press the left mouse button at the current location twice.
+	 * <p>
+	 * <b>Note</b>: Wait behavior won't work properly without selenium table
+	 *
+	 * @return result Boolean result indication of assertion/operation
+	 */
 	public boolean actionDoubleClick() {
 		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(StringUtils.EMPTY, (driver, parsedLocator) -> new Actions(driver).doubleClick().perform());
 	}
 
+	/**
+	 * <p>
+	 * <code>
+	 * | ensure | action double click | <i>selector</i> |
+	 * </code>
+	 * </p>
+	 * Move the mouse to the selector and press the left mouse button twice.
+	 * <p>
+	 * <b>Note</b>: Wait behavior won't work properly without selenium table
+	 *
+	 * @param locator
+	 *            an element locator
+	 * @return result Boolean result indication of assertion/operation
+	 */
 	public boolean actionDoubleClick(String locator) {
 		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(locator, (driver, parsedLocator) -> {
 			Optional<WebElement> element = driver.findElements(parsedLocator.getBy()).stream().filter(WebElement::isDisplayed).findFirst();
@@ -1245,10 +1352,36 @@ public class SeleniumFixture {
 		});
 	}
 
+	/**
+	 * <p>
+	 * <code>
+	 * | action context click |
+	 * </code>
+	 * </p>
+	 * Press the right mouse button at the current location
+	 * <p>
+	 * <b>Note</b>: Wait behavior won't work properly without selenium table
+	 *
+	 * @return result Boolean result indication of assertion/operation
+	 */
 	public boolean actionContextClick() {
 		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(StringUtils.EMPTY, (driver, parsedLocator) -> new Actions(driver).contextClick().perform());
 	}
 
+	/**
+	 * <p>
+	 * <code>
+	 * | ensure | action context click | <i>selector</i> |
+	 * </code>
+	 * </p>
+	 * Move the mouse to the selector and press the right mouse button.
+	 * <p>
+	 * <b>Note</b>: Wait behavior won't work properly without selenium table
+	 *
+	 * @param locator
+	 *            an element locator
+	 * @return result Boolean result indication of assertion/operation
+	 */
 	public boolean actionContextClick(String locator) {
 		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(locator, (driver, parsedLocator) -> {
 			Optional<WebElement> element = driver.findElements(parsedLocator.getBy()).stream().filter(WebElement::isDisplayed).findFirst();
@@ -1259,10 +1392,36 @@ public class SeleniumFixture {
 		});
 	}
 
+	/**
+	 * <p>
+	 * <code>
+	 * | action release |
+	 * </code>
+	 * </p>
+	 * Release the pressed left mouse button at the current location.
+	 * <p>
+	 * <b>Note</b>: Wait behavior won't work properly without selenium table
+	 *
+	 * @return result Boolean result indication of assertion/operation
+	 */
 	public boolean actionRelease() {
 		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(StringUtils.EMPTY, (driver, parsedLocator) -> new Actions(driver).release().perform());
 	}
 
+	/**
+	 * <p>
+	 * <code>
+	 * | ensure | action release | <i>selector</i> |
+	 * </code>
+	 * </p>
+	 * Move to the selector and release the pressed left mouse button.
+	 * <p>
+	 * <b>Note</b>: Wait behavior won't work properly without selenium table
+	 *
+	 * @param locator
+	 *            an element locator
+	 * @return result Boolean result indication of assertion/operation
+	 */
 	public boolean actionRelease(String locator) {
 		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(locator, (driver, parsedLocator) -> {
 			Optional<WebElement> element = driver.findElements(parsedLocator.getBy()).stream().filter(WebElement::isDisplayed).findFirst();
@@ -1273,6 +1432,18 @@ public class SeleniumFixture {
 		});
 	}
 
+	/**
+	 * <p>
+	 * <code>
+	 * | ensure | action pause | <i>milliseconds</i> |
+	 * </code>
+	 * </p>
+	 * Do not perform an action for the given milliseconds
+	 * <p>
+	 * <b>Note</b>: Wait behavior won't work properly without selenium table
+	 *
+	 * @return result Boolean result indication of assertion/operation
+	 */
 	public boolean actionPause(long pause) {
 		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(StringUtils.EMPTY, (driver, parsedLocator) -> new Actions(driver).pause(pause).perform());
 	}

@@ -1,0 +1,23 @@
+This will not test the plain 'click' action.
+
+|selenium                                                             |
+|ensure|open                  |${BASE_URL}Actions/MouseActionTest.html|
+|ensure|action move to element|id=area1                               |
+|action click and hold                                                |
+|check |value                 |id=actionresult   |down left area1     |
+|action release                                                       |
+|check |value                 |id=actionresult   |up left area1       |
+|ensure|action click and hold |id=area3                               |
+|check |value                 |id=actionresult   |down left area3     |
+|ensure|action release        |id=area3                               |
+|check |value                 |id=actionresult   |up left area3       |
+|ensure|action move to element|id=area5                               |
+|action double click                                                  |
+|check |value                 |id=actionresult2  |dblclick left area5 |
+|ensure|action double click   |id=area7                               |
+|check |value                 |id=actionresult2  |dblclick left area7 |
+|ensure|action move to element|id=area9                               |
+|action context click                                                 |
+|check |value                 |id=actionresult   |up right area9      |
+|ensure|action context click  |id=area1                               |
+|check |value                 |id=actionresult   |up right area1      |

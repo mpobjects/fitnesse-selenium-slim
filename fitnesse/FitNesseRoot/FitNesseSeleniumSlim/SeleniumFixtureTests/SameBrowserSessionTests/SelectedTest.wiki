@@ -1,0 +1,10 @@
+|selenium                                  |
+|ensure|open       |${BASE_URL}SelectedTest|
+|ensure|is selected|id=cb-selected         |
+|reject|is selected|id=cb-not-selected     |
+|ensure|is selected|id=r-selected          |
+|reject|is selected|id=r-not-selected      |
+|ensure|is selected|id=opt-selected        |
+|reject|is selected|id=opt-not-selected    |
+|ensure|is selected|id=opt-selected2       |
+|reject|is selected|id=opt-not-selected2   |

@@ -1,0 +1,34 @@
+---
+Test
+---
+|selenium                                                                               |
+|ensure|open|file:///D:/dev/workspace/fitnesse-selenium-slim-test/tests/StatusTests.html|
+
+Test enabled state
+
+|selenium                        |
+|ensure|present   |id=testtarget1|
+|ensure|is enabled|id=testtarget1|
+|click |id=disablebtn            |
+|reject|is enabled|id=testtarget1|
+|click |id=enablebtn             |
+|ensure|is enabled|id=testtarget1|
+|ensure|is enabled|id=opt-1      |
+|reject|is enabled|id=opt-2      |
+
+Test displayed state
+
+|selenium                                                                   |
+|ensure   |is displayed                   |id=testtarget1                   |
+|click    |id=hidebtn                                                       |
+|reject   |is displayed                   |id=testtarget1                   |
+|click    |id=showbtn                                                       |
+|ensure   |is displayed                   |id=testtarget1                   |
+|ensure   |is displayed                   |id=opt-1                         |
+|note     |bottom button is now shown due to overflow: hidden               |
+|reject   |is displayed                   |id=testtarget2                   |
+|click    |id=testtarget1                                                   |
+|send keys|${KEY_TAB}                                                       |
+|note     |should have scrolled to the bottom button, thereby hiding the top|
+|ensure   |is displayed                   |id=testtarget2                   |
+|reject   |is displayed                   |id=testtarget1                   |

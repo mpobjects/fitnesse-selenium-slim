@@ -1,0 +1,18 @@
+Tests move to element, move to element at X and Y, move by offset X and Y, click with and without selector
+
+|selenium                                                                         |
+|ensure               |open                  |${BASE_URL}Actions/MoveToElementTest|
+|ensure               |action move to element|id=area3                            |
+|check                |value                 |id=actionresult |onmouseover area3  |
+|action click                                                                     |
+|check                |value                 |id=actionresult |onclick area3      |
+|ensure               |action move to element|id=area5        |at  |-50  |and |-50|
+|check                |value                 |id=actionresult |onmouseover area1  |
+|action click                                                                     |
+|check                |value                 |id=actionresult |onclick area1      |
+|action move by offset|50                    |and             |50                 |
+|check                |value                 |id=actionresult |onmouseover area5  |
+|action click                                                                     |
+|check                |value                 |id=actionresult |onclick area5      |
+|ensure               |action click          |id=area9                            |
+|check                |value                 |id=actionresult |onclick area9      |
