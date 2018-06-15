@@ -53,19 +53,14 @@ public class ByWebElement extends By implements Serializable {
 		element = SeleniumFixture.getDriver().getCachedElement(id);
 		if (element == null) {
 			// throw exception because if it is not in the cache it will never become available anymore
-			throw new StaleElementReferenceException(String.format("Element with id %s is no longer in the locale cache.", id));
+			throw new StaleElementReferenceException(String.format("Element with id %s is no longer in the local cache.", id));
 		}
 		return element;
 	}
 
 	@Override
 	public List<WebElement> findElements(SearchContext aContext) {
-		WebElement result = findElement(aContext);
-		if (result != null) {
-			return Collections.singletonList(result);
-		} else {
-			return Collections.emptyList();
-		}
+		return Collections.singletonList(findElement(aContext));
 	}
 
 	@Override
