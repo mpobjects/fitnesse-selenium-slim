@@ -1,8 +1,8 @@
 ---
 Test
 ---
-|selenium                                                                               |
-|ensure|open|file:///D:/dev/workspace/fitnesse-selenium-slim-test/tests/StatusTests.html|
+|selenium                          |
+|ensure|open|${BASE_URL}StatusTests|
 
 Test enabled state
 
