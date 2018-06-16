@@ -55,7 +55,11 @@
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<github.global.server>github</github.global.server>
+
+		<webdriver.gecko.driver>${env.WEBDRIVER_GECKO_DRIVER}</webdriver.gecko.driver>
+		<webdriver.chrome.driver>${env.WEBDRIVER_CHROME_DRIVER}</webdriver.chrome.driver>
+		<webdriver.ie.driver>${env.WEBDRIVER_IE_DRIVER}</webdriver.ie.driver>
+		<webdriver.edge.driver>${env.WEBDRIVER_EDGE_DRIVER}</webdriver.edge.driver>
 
 		<fitnesse.version>20161106</fitnesse.version>
 		<selenium.version>3.12.0</selenium.version>
@@ -213,6 +217,19 @@
 					<autoReleaseAfterClose>true</autoReleaseAfterClose>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.21.0</version>
+				<configuration>
+					<systemPropertyVariables>
+						<webdriver.gecko.driver>${webdriver.gecko.driver}</webdriver.gecko.driver>
+						<webdriver.chrome.driver>${webdriver.chrome.driver}</webdriver.chrome.driver>
+						<webdriver.ie.driver>${webdriver.ie.driver}</webdriver.ie.driver>
+						<webdriver.edge.driver>${webdriver.edge.driver}</webdriver.edge.driver>
+					</systemPropertyVariables>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
@@ -315,11 +332,6 @@
 		<profile>
 			<id>interactive-fitnesse</id>
 			<properties>
-				<!-- ensure these properties are set for fitnesse -->
-				<webdriver.gecko.driver>not-set</webdriver.gecko.driver>
-				<webdriver.chrome.driver>not-set</webdriver.chrome.driver>
-				<webdriver.ie.driver>not-set</webdriver.ie.driver>
-				
 				<formatter.skip>true</formatter.skip>
 				<fitnesse.port>8080</fitnesse.port>
 			</properties>
@@ -371,6 +383,10 @@
 								<systemProperty>
 									<key>webdriver.ie.driver</key>
 									<value>${webdriver.ie.driver}</value>
+								</systemProperty>
+								<systemProperty>
+									<key>webdriver.edge.driver</key>
+									<value>${webdriver.edge.driver}</value>
 								</systemProperty>
 								<systemProperty>
 									<key>FITNESSE_CLASSPATH</key>

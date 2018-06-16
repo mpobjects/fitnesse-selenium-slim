@@ -43,7 +43,7 @@ Since the plugin tests itself with FitNesse, take a look at [this](fitnesse/FitN
 There are two properties you will need to define:
 
 1.  `BROWSER` the browser to use for testing. For example `BROWSER=firefox`
-2.  the webdriver location property. For firefox this property is named: `webdriver.gecko.driver`
+2.  the webdriver location property. For firefox this property is named: `WEBDRIVER_GECKO_DRIVER`. For chrome it is `WEBDRIVER_CHROME_DRIVER`, and for IE it is `WEBDRIVER_IE_DRIVER`
 
 Execute the test suite:
 

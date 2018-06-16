@@ -11,8 +11,9 @@
 |Gecko            |${webdriver.gecko.driver} |
 |Chrome           |${webdriver.chrome.driver}|
 |Internet Explorer|${webdriver.ie.driver}    |
+|Edge             |${webdriver.edge.driver}  |
 
-!define DEF_WEBDRIVERS {"-Dwebdriver.gecko.driver=${webdriver.gecko.driver}" "-Dwebdriver.chrome.driver=${webdriver.chrome.driver}" "-Dwebdriver.ie.driver=${webdriver.ie.driver}"}
+!define DEF_WEBDRIVERS {"-Dwebdriver.gecko.driver=${webdriver.gecko.driver}" "-Dwebdriver.chrome.driver=${webdriver.chrome.driver}" "-Dwebdriver.ie.driver=${webdriver.ie.driver}" "-Dwebdriver.edge.driver=${webdriver.edge.driver}"}
 !define COMMAND_PATTERN {java -cp %p ${DEF_WEBDRIVERS} %m}
 !define REMOTE_DEBUG_COMMAND {java -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000 -cp %p ${DEF_WEBDRIVERS} %m}
 ***!
