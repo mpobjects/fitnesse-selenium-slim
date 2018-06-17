@@ -9,7 +9,7 @@ cache:
 addons:
   firefox: "60.0.2"
 install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -Dgpg.skip
-script: xvfb-run mvn test jacoco:report site -B -DBROWSER=firefox -Dwebdriver.gecko.driver="`pwd`/drivers/geckodriver-linux-64bit"
+script: xvfb-run --server-args="-screen 0 1920x1080x24" mvn test jacoco:report site -B -DBROWSER=firefox -Dwebdriver.gecko.driver="`pwd`/drivers/geckodriver-linux-64bit"
 after_success:
 - mvn coveralls:report -DrepoToken=$COVERALLS_REPO_TOKEN
 - openssl aes-256-cbc -pass pass:$ENCRYPTION_PASSWORD -in $GPG_DIR/pubring.gpg.enc -out $GPG_DIR/pubring.gpg -d
