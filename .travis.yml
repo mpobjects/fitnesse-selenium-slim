@@ -7,7 +7,7 @@ cache:
   directories:
   - "$HOME/.m2"
 addons:
-  firefox: "60.0.2"
+  firefox: "61.0.0"
 install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -Dgpg.skip
 script: xvfb-run --server-args="-screen 0 1920x1080x24" mvn test jacoco:report site -B -DBROWSER=firefox -Dwebdriver.gecko.driver="`pwd`/drivers/geckodriver-linux-64bit"
 after_success:
