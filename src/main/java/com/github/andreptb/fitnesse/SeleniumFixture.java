@@ -221,67 +221,6 @@ public class SeleniumFixture {
 	/**
 	 * <p>
 	 * <code>
-	 * | force open | <i>url</i> |
-	 * </code>
-	 * </p>
-	 * Navigates to the the desired url. When an alert pops up it will automatically accept it. When a pop up appears it will wait for
-	 * a few milliseconds before returning.
-	 *
-	 * @param url to navigate
-	 * @return result Boolean result indication of assertion/operation
-	 * @see #setForceOpenAlertDelay(int)
-	 */
-	public boolean forceOpen(String url) {
-		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(url, (driver, parsedLocator) -> {
-			driver.get(parsedLocator.getOriginalSelector());
-			try {
-				Alert alert = driver.switchTo().alert();
-				alert.accept();
-
-				final int delay = SeleniumFixture.WEB_DRIVER.getForceOpenAlertDelay();
-				if (delay > 0) {
-					new Actions(driver).pause(delay).perform();
-				}
-			} catch (NoAlertPresentException e) {
-				// nop
-			}
-		});
-	}
-
-	/**
-	 * <p>
-	 * <code>
-	 * | $previousTimeout= | set force open alert delay | <i>milliseconds</i> |
-	 * </code>
-	 * </p>
-	 * Time to wait after accepting an alert on a force open command.
-	 *
-	 * @param delay in milliseconds
-	 * @return previous value
-	 */
-	public int setForceOpenAlertDelay(int delay) {
-		int previousTimeoutInSeconds = SeleniumFixture.WEB_DRIVER.getForceOpenAlertDelay();
-		SeleniumFixture.WEB_DRIVER.setForceOpenAlertDelay(delay);
-		return previousTimeoutInSeconds;
-	}
-
-	/**
-	 * <p>
-	 * <code>
-	 * | refresh |
-	 * </code>
-	 * </p>
-	 * Simulates the user clicking the "Refresh" button on their browser.
-	 *
-	 * @return result Boolean result indication of assertion/operation
-	 */
-	public boolean refresh() {
-		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(StringUtils.EMPTY, (driver, parsedLocator) -> driver.navigate().refresh());
-	}
-
-	/**
-	 * <p>
-	 * <code>
 	 * | go back |
 	 * </code>
 	 * </p>
