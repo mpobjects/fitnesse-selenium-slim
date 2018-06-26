@@ -221,6 +221,20 @@ public class SeleniumFixture {
 	/**
 	 * <p>
 	 * <code>
+	 * | refresh |
+	 * </code>
+	 * </p>
+	 * Simulates the user clicking the "Refresh" button on their browser.
+	 *
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean refresh() {
+		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(StringUtils.EMPTY, (driver, parsedLocator) -> driver.navigate().refresh());
+	}
+
+	/**
+	 * <p>
+	 * <code>
 	 * | go back |
 	 * </code>
 	 * </p>
