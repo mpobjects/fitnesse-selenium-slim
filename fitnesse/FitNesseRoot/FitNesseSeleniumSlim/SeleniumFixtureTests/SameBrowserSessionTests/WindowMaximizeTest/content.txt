@@ -1,4 +1,6 @@
-|selenium                                           |
-|ensure         |open           |${BASE_URL}big-form|
-|set window size|320x200                            |
-|check not      |window maximize|640x480            |
+|selenium                                               |
+|ensure             |open           |${BASE_URL}big-form|
+|$currentWindowSize=|window size                        |
+|set window size    |320x200                            |
+|check not          |window maximize|640x480            |
+|set window size    |$currentWindowSize                 |
