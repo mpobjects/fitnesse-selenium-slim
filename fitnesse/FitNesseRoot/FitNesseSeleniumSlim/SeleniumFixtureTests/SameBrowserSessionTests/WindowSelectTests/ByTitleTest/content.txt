@@ -1,7 +1,6 @@
 |selenium                                                               |
 |ensure       |open         |${BASE_URL}!-WindowSelectTests/window-one-!|
 |ensure       |open window  |${BASE_URL}!-WindowSelectTests/window-two-!|
-|action pause |1000                                                     |
 |note         |should still be in Window #1                             |
 |check        |title        |!-WindowOne-!                              |
 |note         |tests selector with regex                                |

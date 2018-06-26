@@ -3,7 +3,6 @@ After calling "open window" we pause a second to give the browser time to load t
 |selenium                                                               |
 |ensure       |open         |${BASE_URL}!-WindowSelectTests/window-one-!|
 |ensure       |open window  |${BASE_URL}!-WindowSelectTests/window-two-!|
-|action pause |1000                                                     |
 |show         |current url                                              |
 |note         |should still be in Window #1                             |
 |check        |title        |!-WindowOne-!                              |
