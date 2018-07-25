@@ -2,7 +2,7 @@
 [![Maven Central](https://img.shields.io/maven-central/v/com.mpobjects/fitnesse-selenium-slim.svg)](http://www.maven.org/#search%7Cga%7C1%7Cg%3A%22com.mpobjects%22%20AND%20a%3A%22fitnesse-selenium-slim%22)
 ![Sonatype Nexus (Snapshots)](https://img.shields.io/nexus/s/https/oss.sonatype.org/com.mpobjects/fitnesse-selenium-slim.svg)
 [![Coverage Status](https://coveralls.io/repos/github/mpobjects/fitnesse-selenium-slim/badge.svg?branch=master)](https://coveralls.io/github/mpobjects/fitnesse-selenium-slim?branch=master)
-[![Javadocs](http://www.javadoc.io/badge/com.mpobjects/fitnesse-selenium-slim.svg)](http://www.javadoc.io/doc/com.mpobjects/fitnesse-selenium-slim)
+[![Javadocs](https://www.javadoc.io/badge/com.mpobjects/fitnesse-selenium-slim.svg)](https://www.javadoc.io/doc/com.mpobjects/fitnesse-selenium-slim)
 
 # fitnesse-selenium-slim
 
@@ -24,7 +24,7 @@ This is a continued fork from [André Albino Pereira's original work](https://gi
 
 ###  Getting started
 
-Since the plugin tests itself with FitNesse, take a look at [this](fitnesse/FitNesseRoot/FitNesseSeleniumSlim/BasicUsageSample/content.txt) FitNesseRoot test. Furthermore, detailed information about the available fixture commands can be found in the [![Javadocs](http://www.javadoc.io/badge/com.mpobjects/fitnesse-selenium-slim.svg)](http://www.javadoc.io/doc/com.mpobjects/fitnesse-selenium-slim)(http://mpobjects.github.io/fitnesse-selenium-slim/apidocs/com/github/andreptb/fitnesse/SeleniumFixture.html#startBrowser-java.lang.String-).
+Since the plugin tests itself with FitNesse, take a look at [this](fitnesse/FitNesseRoot/FitNesseSeleniumSlim/BasicUsageSample/content.txt) FitNesseRoot test. Furthermore, detailed information about the available fixture commands can be found in the [here](https://javadoc.io/page/com.mpobjects/fitnesse-selenium-slim/latest/com/github/andreptb/fitnesse/SeleniumFixture.html).
 
 ### Installation
 
