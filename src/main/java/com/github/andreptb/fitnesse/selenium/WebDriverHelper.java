@@ -87,6 +87,20 @@ public class WebDriverHelper {
 
 	private Map<String, WebElement> cachedElements = new LRUMap(64);
 
+	public WebDriverHelper() {
+		registerShutdownHandler();
+	}
+
+	private void registerShutdownHandler() {
+		Runtime.getRuntime().addShutdownHook(new Thread("webdriver-shutdown") {
+			@Override
+			public void run() {
+				System.err.print("Shutting down open webdriver sessions ...");
+				driverCache.values().stream().forEach(WebDriver::quit);
+			}
+		});
+	}
+
 	/**
 	 * Creates a {@link WebDriver} instance with desired browser and capabilities. Capabilities should follow a key/value format
 	 *
