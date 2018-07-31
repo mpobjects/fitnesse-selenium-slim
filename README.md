@@ -35,7 +35,7 @@ Since the plugin tests itself with FitNesse, take a look at [this](fitnesse/FitN
 <dependency>
   <groupId>com.mpobjects</groupId>
   <artifactId>fitnesse-selenium-slim</artifactId>
-  <version>1.1.0</version>
+  <version>1.2.0</version>
 </dependency>
 ```
 
