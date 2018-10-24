@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FitnesseMarkup.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">fitnesse-selenium-slim</a> &gt; <a href="index.source.html" class="el_package">com.github.andreptb.fitnesse.util</a> &gt; <span class="el_source">FitnesseMarkup.java</span></div><h1>FitnesseMarkup.java</h1><pre class="source lang-java linenums">
+package com.github.andreptb.fitnesse.util;
+
+import java.io.File;
+import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang3.tuple.Pair;
+
+/**
+ * General utilities to process FitNesse markup syntax so can be used by Selenium Fixture
+ */
+<span class="fc" id="L20">public class FitnesseMarkup {</span>
+
+	/**
+	 * Markup which presents image preview and download link
+	 */
+	private static final String SCREENSHOT_LINK_MARKUP = &quot;&lt;a href=\&quot;javascript:void(0)\&quot; onclick=\&quot;window.open(this.childNodes[0].getAttribute(''src''));\&quot;&gt;&lt;img src=\&quot;data:image/png;base64,{0}\&quot; height=\&quot;200\&quot;&gt;&lt;/img&lt;/a&gt;&quot;;
+	/**
+	 * @see #compare(Object, Object)
+	 */
+<span class="fc" id="L29">	private static final Pattern FITNESSE_REGEX_MARKUP_PATTERN = Pattern.compile(&quot;^=~/(.+)/&quot;);</span>
+
+	/**
+	 * Constant used to register selenium special keys as system properties
+	 */
+	private static final String KEYBOARD_SPECIAL_KEY_VARIABLE_MARKUP = &quot;KEY_{0}&quot;;
+
+	/**
+	 * Constant representing special key format. Needs !--! to properly render html markup
+	 */
+	private static final String KEYBOARD_SPECIAL_KEY_RENDERING_MARKUP = &quot;!-&lt;span keycode=\&quot;{1}\&quot;&gt;$'{'{0}'}'&lt;/span&gt;-!&quot;;
+	/**
+	 * Constant representing the value separator in selector [selector]@[atributte]-&amp;gt;[value]
+	 */
+	public static final String SELECTOR_VALUE_SEPARATOR = &quot;-&gt;&quot;;
+	/**
+	 * Constant representing the negation flag in {@link #SELECTOR_VALUE_SEPARATOR}
+	 */
+	public static final String SELECTOR_VALUE_DENY_INDICATOR = &quot;!&quot;;
+	/**
+	 * Constants representing selector separators [selector]@[atributte]$[value]
+	 */
+	public static final String SELECTOR_ATTRIBUTE_SEPARATOR = &quot;@&quot;;
+	/**
+	 * Constant representing type separator [type]=[value]
+	 */
+	public static final String KEY_VALUE_SEPARATOR = &quot;=&quot;;
+	/**
+	 * Constant representing [width]x[height] 'x' separator
+	 */
+	private static final String WIDTH_HEIGHT_SEPARATOR = &quot;x&quot;;
+
+<span class="fc" id="L61">	private static final Pattern WIDTH_HEIGHT_PATTERN = Pattern.compile(&quot;(\\d{1,4})x(\\d{1,4})&quot;);</span>
+
+	/**
+	 * &lt;b&gt;on&lt;/b&gt; value constant, see {@link #booleanToOnOrOff(Object)}
+	 */
+	public static final String ON_VALUE = &quot;on&quot;;
+	/**
+	 * &lt;b&gt;off&lt;/b&gt; value constant, see {@link #booleanToOnOrOff(Object)}
+	 */
+	public static final String OFF_VALUE = &quot;off&quot;;
+
+	/**
+	 * Constant representing an exception message contained within a failure
+	 */
+	private static final String EXCEPTION_MESSAGE_MARKUP = &quot;screenshot:&lt;&lt;{0}&gt;&gt;, message:&lt;&lt;{1}&gt;&gt;&quot;;
+
+<span class="fc" id="L77">	private static final Pattern SCREENSHOT_WITHIN_EXCEPTION_PATTERN = Pattern.compile(&quot;screenshot:&lt;&lt;([^&gt;]+)&gt;&gt;&quot;);</span>
+
+	/**
+	 * Compares two values emulating FitNesse comparisons:
+	 * &lt;p&gt;
+	 * http://fitnesse.org/FitNesse.FullReferenceGuide.UserGuide.WritingAcceptanceTests.SliM.ValueComparisons
+	 * &lt;/p&gt;
+	 * For now supports only exact equal and regular expression comparisons
+	 *
+	 * @param expected value
+	 * @param obtained value
+	 * @return comparisonResult
+	 */
+	public boolean compare(Object expected, Object obtained) {
+<span class="fc" id="L91">		String cleanedExpected = clean(expected);</span>
+<span class="fc" id="L92">		String cleanedObtained = clean(obtained);</span>
+<span class="fc" id="L93">		boolean not = StringUtils.startsWith(cleanedExpected, FitnesseMarkup.SELECTOR_VALUE_DENY_INDICATOR);</span>
+<span class="fc" id="L94">		cleanedExpected = StringUtils.stripStart(cleanedExpected, FitnesseMarkup.SELECTOR_VALUE_DENY_INDICATOR);</span>
+<span class="fc" id="L95">		Matcher matcher = FitnesseMarkup.FITNESSE_REGEX_MARKUP_PATTERN.matcher(cleanedExpected);</span>
+<span class="fc" id="L96">		boolean result = false;</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">		if (matcher.matches()) {</span>
+<span class="fc" id="L98">			result = Pattern.compile(matcher.group(NumberUtils.INTEGER_ONE), Pattern.DOTALL).matcher(cleanedObtained).matches();</span>
+		} else {
+<span class="fc" id="L100">			result = StringUtils.equals(cleanedExpected, cleanedObtained);</span>
+		}
+<span class="pc bpc" id="L102" title="1 of 4 branches missed.">		return not ? !result : result;</span>
+	}
+
+	/**
+	 * Cleans FitNesse markup from symbols such as:
+	 * &lt;ul&gt;
+	 * &lt;li&gt;Extracts a keyboard special key value from special key markup. See #&lt;/li&gt;
+	 * &lt;li&gt;Extracts URL only from HTML generated links&lt;/li&gt;
+	 * &lt;li&gt;Extracts text from HTML wiki page creation suggestion link&lt;/li&gt;
+	 * &lt;li&gt;Strips undefined variable ocurrences on text&lt;/li&gt;
+	 * &lt;li&gt;If value is associated with&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 *
+	 * @param symbol to be cleaned
+	 * @return cleanedSymbol
+	 */
+	public String clean(Object symbol) {
+		// strips whitespace and accidental &quot;null&quot; string representation of null value
+<span class="fc" id="L120">		String strippedSymbol = StringUtils.remove(StringUtils.strip(ObjectUtils.toString(symbol)), &quot;null&quot;);</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">		if (StringUtils.isBlank(strippedSymbol)) {</span>
+<span class="fc" id="L122">			return strippedSymbol;</span>
+		}
+		// transforms keyboard special keys markup
+<span class="fc" id="L125">		strippedSymbol = strippedSymbol.replaceAll(&quot;&lt;span keycode=\&quot;([^\&quot;]+)\&quot;[^/]+/span&gt;&quot;, &quot;$1&quot;);</span>
+		// removes undefined variable references
+<span class="fc" id="L127">		strippedSymbol = strippedSymbol.replaceAll(&quot;&lt;span[^&gt;]+&gt;undefined variable:[^&lt;]+&lt;/span&gt;&quot;, StringUtils.EMPTY);</span>
+		// removes create wikipage markup
+<span class="fc" id="L129">		strippedSymbol = strippedSymbol.replaceAll(&quot;&lt;a[^&gt;]+&gt;\\[\\?\\]&lt;/a&gt;&quot;, StringUtils.EMPTY);</span>
+		// removes undefined variable references
+<span class="fc" id="L131">		strippedSymbol = strippedSymbol.replaceAll(&quot;&lt;span[^&gt;]+&gt;undefined variable:[^&lt;]+&lt;/span&gt;&quot;, StringUtils.EMPTY);</span>
+		// removes html tags
+<span class="fc" id="L133">		return strippedSymbol.replaceAll(&quot;&lt;/?.[^&gt;]+&gt;&quot;, StringUtils.EMPTY);</span>
+	}
+
+	/**
+	 * Creates img markup to be viewed in test page.
+	 * Usually used by fixtures that wants to return a image link for the test result.
+	 *
+	 * @param img
+	 *            File containing the image
+	 * @return Image link
+	 */
+	public String imgLink(Object img) {
+<span class="fc" id="L145">		return MessageFormat.format(FitnesseMarkup.SCREENSHOT_LINK_MARKUP, img);</span>
+	}
+
+	/**
+	 * Creates img markup to be viewed in test page. Extracts the image content from an exception message generated by {@link #exceptionMessage(Object, String, Object...)}
+	 *
+	 * @param exceptionMessage
+	 *            to be parsed
+	 * @return image link
+	 */
+	public String imgLinkFromExceptionMessage(String exceptionMessage) {
+<span class="nc" id="L156">		Matcher matcher = FitnesseMarkup.SCREENSHOT_WITHIN_EXCEPTION_PATTERN.matcher(exceptionMessage);</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">		if (matcher.find()) {</span>
+<span class="nc" id="L158">			return imgLink(matcher.group(NumberUtils.INTEGER_ONE));</span>
+		}
+<span class="nc" id="L160">		return null;</span>
+	}
+
+	/**
+	 * Registers a system property ({@link System#setProperty(String, String)}) allowing user to develop tests referencing special keys such as tab and enter by using variables. For example:
+	 * &lt;p&gt;
+	 * If &lt;b&gt;keyName=&quot;tab&quot;&lt;/b&gt; and &lt;b&gt;keyValue=&quot;\uE004&quot;&lt;/b&gt; then &lt;b&gt;${KEY_TAB}&lt;/b&gt; will resolve to &lt;b&gt;&quot;&amp;lt;span keycode=&amp;quot;\uE004&amp;quot;&amp;gt;tab&amp;lt;/span&amp;gt;&quot;&lt;/b&gt;
+	 * &lt;/p&gt;
+	 *
+	 * @param keyName Special keyboard key name
+	 * @param keyValue Special keyboard key value
+	 */
+	public void registerKeyboardSpecialKey(String keyName, String keyValue) {
+<span class="fc" id="L173">		String generatedKeyName = MessageFormat.format(FitnesseMarkup.KEYBOARD_SPECIAL_KEY_VARIABLE_MARKUP, StringUtils.upperCase(keyName));</span>
+<span class="fc" id="L174">		System.setProperty(generatedKeyName, MessageFormat.format(FitnesseMarkup.KEYBOARD_SPECIAL_KEY_RENDERING_MARKUP, generatedKeyName, keyValue));</span>
+<span class="fc" id="L175">	}</span>
+
+	public Pair&lt;String, String&gt; swapValueToCheck(String stringWithValue, String stringToGetValue) {
+<span class="fc" id="L178">		String expectedValue = StringUtils.substringAfterLast(stringWithValue, FitnesseMarkup.SELECTOR_VALUE_SEPARATOR);</span>
+<span class="fc" id="L179">		return Pair.of(StringUtils.substringBeforeLast(stringWithValue, FitnesseMarkup.SELECTOR_VALUE_SEPARATOR), stringToGetValue + FitnesseMarkup.SELECTOR_VALUE_SEPARATOR + expectedValue);</span>
+	}
+
+	/**
+	 * @param value file path parts
+	 * @return normalized a file path, cleaning each path part and joining with current operating system separator
+	 */
+	public File cleanFile(Object... value) {
+<span class="fc" id="L187">		String[] cleanedValues = Arrays.stream(value).map(valueToClean -&gt; FilenameUtils.normalize(clean(valueToClean))).toArray(size -&gt; new String[value.length]);</span>
+<span class="fc" id="L188">		return FileUtils.getFile(cleanedValues);</span>
+	}
+
+	/**
+	 * Cleans and split the value in [key][separator][value] format.
+	 *
+	 * @param value to parse, should be in [key][separator][value]
+	 * @param separator to be used
+	 * @return instance of {@link Pair} containing key and value
+	 */
+	public Pair&lt;String, String&gt; cleanAndParseKeyValue(Object value, String separator) {
+<span class="fc" id="L199">		String cleanedValue = clean(value);</span>
+<span class="fc bfc" id="L200" title="All 2 branches covered.">		if (!StringUtils.contains(cleanedValue, separator)) {</span>
+<span class="fc" id="L201">			return Pair.of(cleanedValue, StringUtils.EMPTY);</span>
+		}
+<span class="fc" id="L203">		String key = StringUtils.substringBefore(cleanedValue, separator);</span>
+<span class="fc" id="L204">		return Pair.of(key, StringUtils.removeStart(cleanedValue, key + separator));</span>
+	}
+
+	/**
+	 * Cleans and converts &lt;b&gt;true&lt;/b&gt; or &lt;b&gt;false&lt;/b&gt; value to {@link #ON_VALUE} or {@link #OFF_VALUE}
+	 *
+	 * @param value to be converted
+	 * @return converted value, {@link #ON_VALUE} if value is &lt;b&gt;true&lt;/b&gt; or {@link #ON_VALUE} itself
+	 */
+	public String booleanToOnOrOff(Object value) {
+<span class="fc bfc" id="L214" title="All 2 branches covered.">		return onOrOffToBoolean(value) ? FitnesseMarkup.ON_VALUE : FitnesseMarkup.OFF_VALUE;</span>
+	}
+
+	/**
+	 * Cleans and converts {@link #ON_VALUE} or {@link #OFF_VALUE} value to boolean.
+	 *
+	 * @param value to be converted
+	 * @return converted value, &lt;b&gt;true&lt;/b&gt; if value is {@link #ON_VALUE}, &lt;b&gt;false&lt;/b&gt; otherwise
+	 */
+	public boolean onOrOffToBoolean(Object value) {
+<span class="fc" id="L224">		String cleanedValue = clean(value);</span>
+<span class="fc bfc" id="L225" title="All 4 branches covered.">		return Boolean.valueOf(cleanedValue) || StringUtils.equalsIgnoreCase(cleanedValue, FitnesseMarkup.ON_VALUE);</span>
+	}
+
+	/**
+	 * @param width Numeric value representing a width value
+	 * @param height Numeric value representing a height value
+	 * @return formatted width and height. If width=1024 and height=768, will output 1024x768
+	 */
+	public String formatWidthAndHeight(Object width, Object height) {
+<span class="fc" id="L234">		return width + FitnesseMarkup.WIDTH_HEIGHT_SEPARATOR + height;</span>
+	}
+
+	/**
+	 * @param widthAndHeight {@link String} containing width and height, separated by {@link #WIDTH_HEIGHT_SEPARATOR}. Example: 1920x1080, 1280x720.
+	 * @return instance of {@link Pair} containing width in {@link Pair#getLeft()} and height in {@link Pair#getRight()}
+	 */
+	public Pair&lt;Integer, Integer&gt; parseWidthAndHeight(String widthAndHeight) {
+<span class="fc" id="L242">		String cleanedWidthAndHeight = clean(widthAndHeight);</span>
+<span class="fc" id="L243">		Matcher matcher = FitnesseMarkup.WIDTH_HEIGHT_PATTERN.matcher(cleanedWidthAndHeight);</span>
+<span class="pc bpc" id="L244" title="1 of 2 branches missed.">		if (!matcher.matches()) {</span>
+<span class="nc" id="L245">			throw new IllegalArgumentException(&quot;Invalid width and height format, should be something like [width pixels]x[height pixels]. Obtained: &quot; + widthAndHeight);</span>
+		}
+<span class="fc" id="L247">		return Pair.of(NumberUtils.toInt(matcher.group(1)), NumberUtils.toInt(matcher.group(2)));</span>
+	}
+
+	/**
+	 * Produces a custom SLIM response containing the original exception message along with a screenshot, probably taken when the exception occured.
+	 *
+	 * @param originalMessage
+	 *            message taken from the exception
+	 * @param screenshotData
+	 *            screenshot data in base64 format
+	 * @param args
+	 *            extra arguments to be interpolated in {@link MessageFormat#format(Object)}
+	 * @return formatted message
+	 */
+	public String exceptionMessage(Object originalMessage, String screenshotData, Object... args) {
+<span class="nc" id="L262">		String originalMessageString = clean(originalMessage);</span>
+		try {
+<span class="nc" id="L264">			return MessageFormat.format(FitnesseMarkup.EXCEPTION_MESSAGE_MARKUP, screenshotData, MessageFormat.format(originalMessageString, args));</span>
+<span class="nc" id="L265">		} catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L266">			return MessageFormat.format(FitnesseMarkup.EXCEPTION_MESSAGE_MARKUP, screenshotData, originalMessageString);</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

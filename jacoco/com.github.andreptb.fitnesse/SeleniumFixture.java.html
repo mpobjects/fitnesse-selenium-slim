@@ -1,0 +1,1404 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SeleniumFixture.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">fitnesse-selenium-slim</a> &gt; <a href="index.source.html" class="el_package">com.github.andreptb.fitnesse</a> &gt; <span class="el_source">SeleniumFixture.java</span></div><h1>SeleniumFixture.java</h1><pre class="source lang-java linenums">
+package com.github.andreptb.fitnesse;
+
+import com.github.andreptb.fitnesse.selenium.BrowserDialogHelper;
+import com.github.andreptb.fitnesse.selenium.ByWebElement;
+import com.github.andreptb.fitnesse.selenium.FrameWebElementHelper;
+import com.github.andreptb.fitnesse.selenium.SelectWebElementHelper;
+import com.github.andreptb.fitnesse.selenium.WebDriverHelper;
+import com.github.andreptb.fitnesse.selenium.WebDriverHelper.StopTestWithWebDriverException;
+import com.github.andreptb.fitnesse.util.FitnesseMarkup;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.openqa.selenium.*;
+import org.openqa.selenium.WebDriver.Window;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.remote.LocalFileDetector;
+import org.openqa.selenium.remote.RemoteWebElement;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.NoSuchElementException;
+import java.util.function.Consumer;
+
+/**
+ * Slim fixture to execute Selenium commands, see README.md for more information.
+ */
+<span class="fc" id="L30">public class SeleniumFixture {</span>
+
+	/**
+	 * HTML Type attribute, usually used on inputs
+	 */
+	private static final String INPUT_TYPE_ATTRIBUTE = &quot;type&quot;;
+	/**
+	 * HTML value for input type=file
+	 */
+	private static final String INPUT_TYPE_FILE_VALUE = &quot;file&quot;;
+
+	/**
+	 * HTML input type radio attribute constant
+	 */
+	private static final String INPUT_TYPE_RADIO = &quot;radio&quot;;
+	/**
+	 * HTML input type checkbox attribute constant
+	 */
+	private static final String INPUT_TYPE_CHECKBOX = &quot;checkbox&quot;;
+	/**
+	 * HTML input value attribute constant
+	 */
+	private static final String INPUT_VALUE_ATTRIBUTE = &quot;value&quot;;
+
+	/**
+	 * Window URL with blank page, see {@link #setDryRun(String)}
+	 */
+	private static final String BLANK_PAGE = &quot;about:blank&quot;;
+
+	/**
+	 * Instance that wraps {@link WebDriver} providing utility methods to manipulate elements and such. Attribute is static to keep state between table invocations
+	 */
+<span class="fc" id="L62">	private static WebDriverHelper WEB_DRIVER = new WebDriverHelper();</span>
+
+	/**
+	 * Utility to help selecting drop downs
+	 */
+<span class="fc" id="L67">	private SelectWebElementHelper selectHelper = new SelectWebElementHelper();</span>
+	/**
+	 * Utility to help selecting frames
+	 */
+<span class="fc" id="L71">	private FrameWebElementHelper frameHelper = new FrameWebElementHelper();</span>
+	/**
+	 * Utility to help manipulating browser native dialogs (alert and confirm)
+	 */
+<span class="fc" id="L75">	private BrowserDialogHelper dialogHelper = new BrowserDialogHelper();</span>
+	/**
+	 * Utility to process FitNesse markup so can be used by Selenium WebDriver
+	 */
+<span class="fc" id="L79">	private FitnesseMarkup fitnesseMarkup = new FitnesseMarkup();</span>
+
+	/**
+	 * Expose the driver helper to allow other fixtures to extend this.
+	 * 
+	 * @return
+	 */
+	public static WebDriverHelper getDriver() {
+<span class="fc" id="L87">		return WEB_DRIVER;</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | start browser | &lt;i&gt;browser&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Registers the DRIVER to further execute selenium commands
+	 *
+	 * @see #startBrowserWith(String, String)
+	 * @param browser The browser to be used
+	 * @throws ReflectiveOperationException if remote driver class cannot be instantiated
+	 * @throws IOException if IO error occurs if invalid URL is used when connecting to remote drivers
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean startBrowser(String browser) throws ReflectiveOperationException, IOException {
+<span class="nc" id="L105">		return startBrowserWith(browser, null);</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | start browser | &lt;i&gt;browser&lt;/i&gt; | with | &lt;i&gt;capabilities&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Registers the DRIVER to further execute selenium commands. Capabilities should be informed in the following format:
+	 * &lt;p&gt;
+	 * name='some test' platform='LINUX' version='xx'
+	 * &lt;/p&gt;
+	 * This format was used instead of regular json format since FitNesse uses brackets for variables. Quotes between values must be used
+	 *
+	 * @param browser The browser to be used
+	 * @param capabilities Usually used to configure remote driver, but some local driver also uses. For example: name='some test' platform='LINUX' version='xx'
+	 * @throws ReflectiveOperationException if remote driver class cannot be instantiated
+	 * @throws IOException if IO error occurs if invalid URL is used when connecting to remote drivers
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean startBrowserWith(String browser, String capabilities) throws ReflectiveOperationException, IOException {
+<span class="fc" id="L127">		return startBrowserWithAndPreferences(browser, capabilities, null);</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | start browser | &lt;i&gt;browser&lt;/i&gt; | with preferences | &lt;i&gt;browser preferences&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Registers the DRIVER to further execute selenium commands. Preferences should be informed in the following format:
+	 * &lt;p&gt;
+	 * name='some test' platform='LINUX' version='xx'
+	 * &lt;/p&gt;
+	 * This format was used instead of regular json format since FitNesse uses brackets for variables. Quotes between values must be used
+	 *
+	 * @param browser The browser to be used
+	 * @param browserPreferences Allows profile configuration for some browser. At this moment supports Chrome and Firefox drivers (local and remote)
+	 * @return result Boolean result indication of assertion/operation
+	 * @throws ReflectiveOperationException if remote driver class cannot be instantiated
+	 * @throws IOException if IO error occurs if invalid URL is used when connecting to remote drivers
+	 */
+	public boolean startBrowserWithPreferences(String browser, String browserPreferences) throws ReflectiveOperationException, IOException {
+<span class="nc" id="L149">		return startBrowserWithAndPreferences(browser, null, browserPreferences);</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | start browser | &lt;i&gt;browser&lt;/i&gt; | with | &lt;i&gt;capabilities&lt;/i&gt; | and preferences | &lt;i&gt;browser preferences&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Registers the DRIVER to further execute selenium commands. Capabilities as well as browser preferences should be informed in the following format:
+	 * &lt;p&gt;
+	 * key1='value1' key2='value2' key3='value3'
+	 * &lt;/p&gt;
+	 * This format was used instead of regular json format since FitNesse uses brackets for variables. Quotes between values must be used
+	 *
+	 * @param browser The browser to be used
+	 * @param capabilities Usually used to configure remote driver, but some local driver also uses. For example: name='some test' platform='LINUX' version='xx'
+	 * @param browserPreferences Allows profile configuration for some browser. At this moment supports Chrome and Firefox drivers (local and remote)
+	 * @return result Boolean result indication of assertion/operation
+	 * @throws ReflectiveOperationException if remote driver class cannot be instantiated
+	 * @throws IOException if IO error occurs if invalid URL is used when connecting to remote drivers
+	 */
+	public boolean startBrowserWithAndPreferences(String browser, String capabilities, String browserPreferences) throws ReflectiveOperationException, IOException {
+<span class="fc" id="L172">		SeleniumFixture.WEB_DRIVER.connect(browser, capabilities, browserPreferences);</span>
+<span class="fc" id="L173">		return true;</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | $previousTimeout= | set wait timeout | &lt;i&gt;timeout in seconds&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Sets the time to wait while finding an element.
+	 *
+	 * @param timeoutInSeconds wait seconds to timeout
+	 * @return previous timeout value
+	 */
+	public int setWaitTimeout(int timeoutInSeconds) {
+<span class="fc" id="L188">		int previousTimeoutInSeconds = SeleniumFixture.WEB_DRIVER.getTimeoutInSeconds();</span>
+<span class="fc" id="L189">		SeleniumFixture.WEB_DRIVER.setTimeoutInSeconds(timeoutInSeconds);</span>
+<span class="fc" id="L190">		return previousTimeoutInSeconds;</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | check | last command duration | &amp;lt; &lt;i&gt;duration in seconds&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 *
+	 * @return how much time the last command took to complete. Useful to ensure tests perfomance and such. Will be 0 if no commands were executed
+	 */
+	public long lastCommandDuration() {
+<span class="fc" id="L203">		return SeleniumFixture.WEB_DRIVER.getLastActionDurationInSeconds();</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | open | &lt;i&gt;url&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Navigates to the the desired url
+	 *
+	 * @param url to navigate
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean open(String url) {
+<span class="fc" id="L218">		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(url, (driver, parsedLocator) -&gt; driver.get(parsedLocator.getOriginalSelector()));</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | refresh |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Simulates the user clicking the &quot;Refresh&quot; button on their browser.
+	 *
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean refresh() {
+<span class="fc" id="L232">		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(StringUtils.EMPTY, (driver, parsedLocator) -&gt; driver.navigate().refresh());</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | go back |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Simulates the user clicking the &quot;back&quot; button on their browser.
+	 *
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean goBack() {
+<span class="fc" id="L246">		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(StringUtils.EMPTY, (driver, parsedLocator) -&gt; driver.navigate().back());</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | go forward |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Simulates the user clicking the &quot;forward&quot; button on their browser.
+	 *
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean goForward() {
+<span class="fc" id="L260">		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(StringUtils.EMPTY, (driver, parsedLocator) -&gt; driver.navigate().forward());</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | check | current url | &lt;i&gt;url&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 *
+	 * @return current url defined in browser
+	 */
+	public String currentUrl() {
+<span class="fc" id="L273">		return currentUrl(StringUtils.EMPTY);</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | check | current url | &lt;i&gt;url&lt;/i&gt; | &lt;i&gt;url&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * To be used along slim check action. Will respect {@link #setWaitTimeout(int)} before triggering failure. If using selenium table, please ignore this action.
+	 *
+	 * @param expectedUrl that we'll wait for
+	 * @return the current page title
+	 */
+	public String currentUrl(String expectedUrl) {
+<span class="fc" id="L288">		return SeleniumFixture.WEB_DRIVER.getWhenAvailable(expectedUrl, (driver, locator) -&gt; driver.getCurrentUrl());</span>
+	}
+
+	private void openWindow(WebDriver driver, String url) {
+<span class="fc" id="L292">		String cleansedUrl = this.fitnesseMarkup.clean(url);</span>
+<span class="pc bpc" id="L293" title="1 of 2 branches missed.">		if (CollectionUtils.isEmpty(driver.getWindowHandles())) {</span>
+<span class="nc" id="L294">			driver.get(cleansedUrl);</span>
+<span class="pc bpc" id="L295" title="1 of 2 branches missed.">		} else if (driver instanceof JavascriptExecutor) {</span>
+<span class="fc" id="L296">			((JavascriptExecutor) driver).executeScript(&quot;window.open(arguments[0])&quot;, cleansedUrl);</span>
+		}
+<span class="fc" id="L298">	}</span>
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | open window | &lt;i&gt;url&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Opens a popup window with desired &lt;i&gt;url&lt;/i&gt;. After opening the window, you'll need to select it using the selectWindow command.
+	 *
+	 * @see #selectWindow(String)
+	 * @param url to navigate
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean openWindow(String url) {
+<span class="fc" id="L313">		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(url, (driver, parsedLocator) -&gt; openWindow(driver, parsedLocator.getOriginalSelector()));</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | select window | &lt;i&gt;locator&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Selects a popup window using a window locator; once a popup window has been selected, all commands go to that window.
+	 * Currently supports window search by nameOrHandle, title and current url
+	 *
+	 * @param locator an element locator
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean selectWindow(String locator) {
+<span class="fc" id="L329">		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(locator, (driver, parsedLocator) -&gt; {</span>
+<span class="fc" id="L330">			String parsedWindowLocator = parsedLocator.getOriginalSelector();</span>
+<span class="fc" id="L331">			String currentWindow = driver.getWindowHandle();</span>
+<span class="pc bpc" id="L332" title="1 of 2 branches missed.">			for (String windowId : driver.getWindowHandles()) {</span>
+<span class="fc" id="L333">				WebDriver window = driver.switchTo().window(windowId);</span>
+<span class="fc bfc" id="L334" title="All 6 branches covered.">				if (this.fitnesseMarkup.compare(parsedWindowLocator, windowId) || this.fitnesseMarkup.compare(parsedWindowLocator, window.getTitle()) || this.fitnesseMarkup.compare(parsedWindowLocator, window.getCurrentUrl())) {</span>
+<span class="fc" id="L335">					return;</span>
+				}
+<span class="fc" id="L337">			}</span>
+			// if title didn't match anything go back to current window
+<span class="nc bnc" id="L339" title="All 2 branches missed.">			if (currentWindow != null) {</span>
+<span class="nc" id="L340">				driver.switchTo().window(currentWindow);</span>
+			}
+<span class="nc" id="L342">			throw new NoSuchElementException(&quot;No window found for locator: &quot; + parsedWindowLocator);</span>
+		});
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | select frame | &lt;i&gt;locator&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Selects a frame within the current window. (You may invoke this command multiple times to select nested frames.) To select the parent frame, use &quot;relative=parent&quot; as a locator; to select the
+	 * top frame, use &quot;relative=top&quot;. You can also select a frame by its 0-based index number; select the first frame with &quot;index=0&quot;, or the third frame with &quot;index=2&quot;.
+	 * Note that you can use all element locators such as &lt;b&gt;id&lt;/b&gt;, &lt;b&gt;css&lt;/b&gt;, &lt;b&gt;xpath&lt;/b&gt; and so on
+	 *
+	 * @param locator an element locator
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean selectFrame(String locator) {
+<span class="fc" id="L360">		return this.frameHelper.select(SeleniumFixture.WEB_DRIVER, locator);</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | show | current window |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Returns current window ID. Returns &quot;null&quot; if no window is available
+	 *
+	 * @return windowID
+	 */
+	public String currentWindow() {
+<span class="fc" id="L374">		return currentWindow(StringUtils.EMPTY);</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | check | current window | &lt;i&gt;windowHandle&lt;/i&gt; | &lt;i&gt;windowHandle&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * To be used along slim check action. Will respect {@link #setWaitTimeout(int)} before triggering failure. If using selenium table, please ignore this action.
+	 *
+	 * @param expectedWindowHandle that we'll wait for
+	 * @return the current page title
+	 */
+	public String currentWindow(String expectedWindowHandle) {
+<span class="fc" id="L389">		return SeleniumFixture.WEB_DRIVER.getWhenAvailable(expectedWindowHandle, (driver, locator) -&gt; driver.getWindowHandle());</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | window maximize |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Resize currently selected window to take up the entire screen
+	 *
+	 * @return the window size after maximizing
+	 */
+	public String windowMaximize() {
+<span class="fc" id="L403">		return SeleniumFixture.WEB_DRIVER.getWhenAvailable(StringUtils.EMPTY, (driver, parsedLocator) -&gt; {</span>
+<span class="fc" id="L404">			Window window = driver.manage().window();</span>
+<span class="fc" id="L405">			window.maximize();</span>
+<span class="fc" id="L406">			return this.fitnesseMarkup.formatWidthAndHeight(window.getSize().getWidth(), window.getSize().getHeight());</span>
+		});
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | set window size | &lt;i&gt;[width]x[height]&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Set the size of the current window. This will change the outer window dimension, not just the view port, synonymous to window.resizeTo() in JS.
+	 *
+	 * @param widthAndHeight windows size, in [width]x[height] format
+	 * @return result Boolean result indication of assertion/operation
+	 * @throws IllegalArgumentException if widthAndHeight is malformed
+	 */
+	public boolean setWindowSize(String widthAndHeight) {
+<span class="fc" id="L423">		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(StringUtils.EMPTY, (driver, parsedLocator) -&gt; {</span>
+<span class="fc" id="L424">			Pair&lt;Integer, Integer&gt; parsedWidthAndHeight = this.fitnesseMarkup.parseWidthAndHeight(widthAndHeight);</span>
+<span class="fc" id="L425">			driver.manage().window().setSize(new Dimension(parsedWidthAndHeight.getLeft(), parsedWidthAndHeight.getRight()));</span>
+<span class="fc" id="L426">		});</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | window size |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 *
+	 * @return windows size, in [width]x[height] format
+	 */
+	public String windowSize() {
+<span class="fc" id="L439">		return windowSize(StringUtils.EMPTY);</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | window size |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * To be used along slim check action. Will respect {@link #setWaitTimeout(int)} before triggering failure. If using selenium table, please ignore this action.
+	 *
+	 * @param expectedWindowSize Expected window size
+	 * @return windows size, in [width]x[height] format
+	 */
+	public String windowSize(String expectedWindowSize) {
+<span class="fc" id="L454">		return SeleniumFixture.WEB_DRIVER.getWhenAvailable(expectedWindowSize, (driver, parsedLocator) -&gt; {</span>
+<span class="fc" id="L455">			Dimension dimension = driver.manage().window().getSize();</span>
+<span class="fc" id="L456">			return String.format(&quot;%dx%d&quot;, dimension.getWidth(), dimension.getHeight());</span>
+		});
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | show | title |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Current page title
+	 *
+	 * @return the current page title
+	 */
+	public String title() {
+<span class="nc" id="L471">		return title(StringUtils.EMPTY);</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | check | title | &lt;i&gt;title&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * To be used along slim check action. Will respect {@link #setWaitTimeout(int)} before triggering failure. If using selenium table, please ignore this action.
+	 *
+	 * @param expectedTitle that we'll wait for
+	 * @return the current page title
+	 */
+	public String title(String expectedTitle) {
+<span class="fc" id="L486">		return SeleniumFixture.WEB_DRIVER.getWhenAvailable(expectedTitle, (driver, locator) -&gt; driver.getTitle());</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | close browser tab |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Closes the last tab
+	 *
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean closeBrowserTab() {
+<span class="fc" id="L500">		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(StringUtils.EMPTY, (driver, parsedLocator) -&gt; {</span>
+<span class="fc" id="L501">			driver.close();</span>
+<span class="fc" id="L502">			Iterator&lt;String&gt; currentWindows = driver.getWindowHandles().iterator();</span>
+<span class="pc bpc" id="L503" title="1 of 2 branches missed.">			if (currentWindows.hasNext()) {</span>
+				// if there's still windows opened focus anyone that's still opened
+<span class="fc" id="L505">				driver.switchTo().window(currentWindows.next());</span>
+			}
+<span class="fc" id="L507">		});</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | quit browser |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Quits driver instance, closing all associated windows
+	 *
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean quitBrowser() {
+<span class="fc" id="L521">		SeleniumFixture.WEB_DRIVER.quit();</span>
+<span class="fc" id="L522">		return true;</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | type | &lt;i&gt;value&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Sets the value of the current focused input field, as though you typed it in.
+	 * Can also be used to set the value of combo boxes, check boxes, etc. In these cases, value should be the value of the option selected, not the visible text.
+	 *
+	 * @param value the value to typeIn
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean type(String value) {
+<span class="fc" id="L538">		return typeIn(value, StringUtils.EMPTY);</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | type | &lt;i&gt;value&lt;/i&gt; | in | &lt;i&gt;locator&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Sets the value of an input field, as though you typed it in.
+	 * Can also be used to set the value of combo boxes, check boxes, etc. In these cases, value should be the value of the option selected, not the visible text.
+	 *
+	 * @param value the value to typeIn
+	 * @param locator an element locator
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean typeIn(String value, String locator) {
+<span class="fc" id="L555">		return sendKeysIn(value, locator, true);</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | send keys | &lt;i&gt;value&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Simulates keystroke events on the current focused element, as though you typed the value key-by-key.
+	 * This simulates a real user typing every character in the specified string; it is also bound by the limitations of a real user, like not being able to type into a invisible or read only
+	 * elements. This is useful for dynamic UI widgets (like auto-completing combo boxes) that require explicit key events.
+	 * Unlike the simple &quot;type&quot; command, which forces the specified value into the page directly, this command will not replace the existing content. If you want to replace the existing contents, you
+	 * need to use the simple &quot;type&quot; command to set the value of the field to empty string to clear the field and then the &quot;sendKeys&quot; command to send the keystroke for what you want to type.
+	 *
+	 * @param value the value to typeIn
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean sendKeys(String value) {
+<span class="fc" id="L574">		return sendKeysIn(value, StringUtils.EMPTY);</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | send keys | &lt;i&gt;value&lt;/i&gt; | in | &lt;i&gt;locator&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Simulates keystroke events on the specified element, as though you typed the value key-by-key.
+	 * This simulates a real user typing every character in the specified string; it is also bound by the limitations of a real user, like not being able to type into a invisible or read only
+	 * elements. This is useful for dynamic UI widgets (like auto-completing combo boxes) that require explicit key events.
+	 * Unlike the simple &quot;type&quot; command, which forces the specified value into the page directly, this command will not replace the existing content. If you want to replace the existing contents, you
+	 * need to use the simple &quot;type&quot; command to set the value of the field to empty string to clear the field and then the &quot;sendKeys&quot; command to send the keystroke for what you want to type.
+	 *
+	 * @param value the value to typeIn
+	 * @param locator an element locator
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean sendKeysIn(String value, String locator) {
+<span class="fc" id="L594">		return sendKeysIn(value, locator, false);</span>
+	}
+
+	private boolean sendKeysIn(String value, String locator, boolean clearBefore) {
+<span class="fc" id="L598">		Pair&lt;String, String&gt; valueAndLocator = this.fitnesseMarkup.swapValueToCheck(value, locator);</span>
+<span class="fc" id="L599">		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(valueAndLocator.getValue(), (driver, parsedLocator) -&gt; {</span>
+<span class="fc" id="L600">			WebElement element = driver.findElement(parsedLocator.getBy());</span>
+<span class="fc" id="L601">			String cleanedValue = cleanValueToSend(driver, element, valueAndLocator.getKey());</span>
+<span class="fc bfc" id="L602" title="All 2 branches covered.">			if (clearBefore) {</span>
+<span class="fc" id="L603">				element.clear();</span>
+			}
+<span class="pc bpc" id="L605" title="1 of 2 branches missed.">			if (StringUtils.isNotBlank(cleanedValue)) {</span>
+<span class="fc" id="L606">				element.sendKeys(cleanedValue);</span>
+			}
+<span class="fc" id="L608">		});</span>
+	}
+
+	/**
+	 * When send keys is being executed in a input file=type {@link LocalFileDetector} must be configured for remote drivers. Additionally,
+	 * the file path is expanded to be absolute
+	 *
+	 * @param driver used to run commands
+	 * @param element receiving keys
+	 * @param value to be set to input file type
+	 * @return value expanded to absolute path if for input file type.
+	 */
+	private String cleanValueToSend(WebDriver driver, WebElement element, String value) {
+<span class="fc bfc" id="L621" title="All 2 branches covered.">		if (!StringUtils.equals(element.getAttribute(SeleniumFixture.INPUT_TYPE_ATTRIBUTE), SeleniumFixture.INPUT_TYPE_FILE_VALUE)) {</span>
+<span class="fc" id="L622">			return this.fitnesseMarkup.clean(value);</span>
+		}
+		// set file detector for remote web elements. Local FirefoxDriver uses RemoteWebElement and
+<span class="pc bpc" id="L625" title="2 of 4 branches missed.">		if (element instanceof RemoteWebElement &amp;&amp; !ClassUtils.isAssignable(driver.getClass(), FirefoxDriver.class)) {</span>
+<span class="nc" id="L626">			((RemoteWebElement) element).setFileDetector(new LocalFileDetector());</span>
+		}
+<span class="fc" id="L628">		return this.fitnesseMarkup.cleanFile(value).getAbsolutePath();</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | click |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Clicks on the current focused link, button, checkbox or radio button.
+	 *
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean click() {
+<span class="fc" id="L642">		return click(StringUtils.EMPTY);</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | click | &lt;i&gt;locator&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Clicks on a link, button, checkbox or radio button. If the click action causes a new page to load (like a link usually does), call waitForPageToLoad.
+	 *
+	 * @param locator an element locator
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean click(String locator) {
+<span class="fc" id="L657">		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(locator, (driver, parsedLocator) -&gt; {</span>
+<span class="fc bfc" id="L658" title="All 2 branches covered.">			if (this.dialogHelper.click(driver, parsedLocator)) {</span>
+<span class="fc" id="L659">				return;</span>
+			}
+<span class="fc" id="L661">			WebElement element = driver.findElement(parsedLocator.getBy());</span>
+<span class="pc bpc" id="L662" title="1 of 2 branches missed.">			if (!element.isEnabled()) {</span>
+<span class="nc" id="L663">				throw new InvalidElementStateException(&quot;Element found but is disabled: &quot; + element);</span>
+			}
+<span class="fc" id="L665">			element.click();</span>
+<span class="fc" id="L666">		});</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | select | &lt;i&gt;optionLocator&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Select an option from the currently focused drop-down using an option locator.
+	 * Option locators provide different ways of specifying options of an HTML Select element (e.g. for selecting a specific option, or for asserting that the selected option satisfies a
+	 * specification). There are several forms of Select Option Locator.
+	 * &lt;ul&gt;
+	 * &lt;li&gt;&lt;b&gt;label&lt;/b&gt;=&lt;i&gt;labelPattern&lt;/i&gt;: matches options based on their labels, i.e. the visible text. (This is the default.)&lt;/li&gt;
+	 * &lt;li&gt;&lt;b&gt;value&lt;/b&gt;=&lt;i&gt;valuePattern&lt;/i&gt;: matches options based on their values.&lt;/li&gt;
+	 * &lt;li&gt;&lt;b&gt;index&lt;/b&gt;=&lt;i&gt;index&lt;/i&gt;: matches an option based on its index (offset from zero).&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 *
+	 * @param optionLocator option locator to be used for select action
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean select(String optionLocator) {
+<span class="fc" id="L688">		return selectIn(optionLocator, StringUtils.EMPTY);</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | select | &lt;i&gt;optionLocator&lt;/i&gt; | in | &lt;i&gt;locator&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Select an option from a drop-down using an option locator.
+	 * Option locators provide different ways of specifying options of an HTML Select element (e.g. for selecting a specific option, or for asserting that the selected option satisfies a
+	 * specification). There are several forms of Select Option Locator.
+	 * &lt;ul&gt;
+	 * &lt;li&gt;&lt;b&gt;label&lt;/b&gt;=&lt;i&gt;labelPattern&lt;/i&gt;: matches options based on their labels, i.e. the visible text. (This is the default.)&lt;/li&gt;
+	 * &lt;li&gt;&lt;b&gt;value&lt;/b&gt;=&lt;i&gt;valuePattern&lt;/i&gt;: matches options based on their values.&lt;/li&gt;
+	 * &lt;li&gt;&lt;b&gt;index&lt;/b&gt;=&lt;i&gt;index&lt;/i&gt;: matches an option based on its index (offset from zero).&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 *
+	 * @param optionLocator option locator to be used for select action
+	 * @param locator an element locator
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean selectIn(String optionLocator, String locator) {
+<span class="fc" id="L711">		return this.selectHelper.select(SeleniumFixture.WEB_DRIVER, optionLocator, locator);</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | check | selected | &lt;i&gt;optionType&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Gets option data for selected option for the currently focused select element. Can return three types of information depending of &lt;i&gt;optionType&lt;/i&gt;:
+	 * &lt;ul&gt;
+	 * &lt;li&gt;&lt;b&gt;label&lt;/b&gt;: Gets option label (visible text) for selected option in the specified select element.&lt;/li&gt;
+	 * &lt;li&gt;&lt;b&gt;value&lt;/b&gt;: Gets option value (value attribute) for selected option in the specified select element.&lt;/li&gt;
+	 * &lt;li&gt;&lt;b&gt;index&lt;/b&gt;: Gets option index (option number, starting at 0) for selected option in the specified select element.&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 *
+	 * @param optionType can be label, value or index
+	 * @return the appropriate information associated with the select
+	 */
+	public String selected(String optionType) {
+<span class="fc" id="L731">		return selectedIn(optionType, StringUtils.EMPTY);</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | check | selected | &lt;i&gt;optionType&lt;/i&gt; | in | &lt;i&gt;locator&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Gets option data for selected option in the specified select element. Can return three types of information depending of &lt;i&gt;optionType&lt;/i&gt;:
+	 * &lt;ul&gt;
+	 * &lt;li&gt;&lt;b&gt;label&lt;/b&gt;: Gets option label (visible text) for selected option in the specified select element.&lt;/li&gt;
+	 * &lt;li&gt;&lt;b&gt;value&lt;/b&gt;: Gets option value (value attribute) for selected option in the specified select element.&lt;/li&gt;
+	 * &lt;li&gt;&lt;b&gt;index&lt;/b&gt;: Gets option index (option number, starting at 0) for selected option in the specified select element.&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 *
+	 * @param optionType can be label, value or index
+	 * @param locator an element locator
+	 * @return the appropriate information associated with the select
+	 */
+	public String selectedIn(String optionType, String locator) {
+<span class="fc" id="L752">		return this.selectHelper.selected(SeleniumFixture.WEB_DRIVER, optionType, locator);</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | check | value | &lt;i&gt;locator&lt;/i&gt; | &lt;i&gt;expectedValue&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Gets the (whitespace-trimmed) value of an input field (or anything else with a value parameter). For checkbox/radio elements, the value will be &quot;on&quot; or &quot;off&quot; depending on whether the element is
+	 * checked or not.
+	 *
+	 * @param locator an element locator
+	 * @return value associated with the locator
+	 */
+	public String value(String locator) {
+<span class="fc" id="L768">		return SeleniumFixture.WEB_DRIVER.getWhenAvailable(locator, (driver, parsedLocator) -&gt; {</span>
+<span class="fc" id="L769">			WebElement element = driver.findElement(parsedLocator.getBy());</span>
+<span class="fc" id="L770">			String inputType = element.getAttribute(SeleniumFixture.INPUT_TYPE_ATTRIBUTE);</span>
+<span class="fc bfc" id="L771" title="All 4 branches covered.">			if (StringUtils.equals(inputType, SeleniumFixture.INPUT_TYPE_CHECKBOX) || StringUtils.equals(inputType, SeleniumFixture.INPUT_TYPE_RADIO)) {</span>
+<span class="fc" id="L772">				return this.fitnesseMarkup.booleanToOnOrOff(element.isSelected());</span>
+			}
+<span class="fc" id="L774">			return element.getAttribute(SeleniumFixture.INPUT_VALUE_ATTRIBUTE);</span>
+		});
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | check | &lt;i&gt;attribute&lt;/i&gt; | &lt;i&gt;attributeName&lt;/i&gt; | in | &lt;i&gt;locator&lt;/i&gt; |  &lt;i&gt;expectedValue&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Gets the value of an element attribute. The value of the attribute may differ across browsers (this is the case for the &quot;style&quot; attribute, for example).
+	 *
+	 * @param attributeName the name of the attribute to retrieve the value from
+	 * @param locator an element locator
+	 * @return value associated with the locator
+	 */
+	public String attributeIn(String attributeName, String locator) {
+<span class="fc" id="L791">		Pair&lt;String, String&gt; attributeAndLocatorWithValue = this.fitnesseMarkup.swapValueToCheck(attributeName, locator);</span>
+<span class="fc" id="L792">		return SeleniumFixture.WEB_DRIVER.getWhenAvailable(attributeAndLocatorWithValue.getRight(), (driver, parsedLocator) -&gt; driver.findElement(parsedLocator.getBy()).getAttribute(this.fitnesseMarkup.clean(attributeAndLocatorWithValue.getLeft())));</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | show | text |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Gets the text of the current focused element. This works for any element that contains text. This command uses either the textContent (Mozilla-like browsers) or the innerText (IE-like browsers)
+	 * of the element,
+	 * which is the rendered text shown to the user.
+	 * &lt;p&gt;
+	 * If a dialog box is being presented on the page (such as an alert dialog), this action will return the dialog text
+	 * &lt;/p&gt;
+	 *
+	 * @return text associated with the locator
+	 */
+	public String text() {
+<span class="fc" id="L811">		return text(StringUtils.EMPTY);</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | check | text | &lt;i&gt;locator&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Gets the text of an element. This works for any element that contains text. This command uses either the textContent (Mozilla-like browsers) or the innerText (IE-like browsers) of the element,
+	 * which is the rendered text shown to the user.
+	 *
+	 * @param locator an element locator
+	 * @return text associated with the locator
+	 */
+	public String text(String locator) {
+<span class="fc" id="L827">		return SeleniumFixture.WEB_DRIVER.getWhenAvailable(locator, (driver, parsedLocator) -&gt; {</span>
+<span class="fc" id="L828">			return Optional.ofNullable(this.dialogHelper.text(driver, parsedLocator)).orElseGet(() -&gt; {</span>
+<span class="fc" id="L829">				return driver.findElement(parsedLocator.getBy()).getText();</span>
+			});
+		});
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | show | screenshot |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Takes screenshot from current browser state and returns to be previewed in test result page.
+	 *
+	 * @return screenshot saved file absolute path
+	 * @throws IOException if something goes wrong while manipulating screenshot file
+	 */
+	public String screenshot() throws IOException {
+<span class="fc" id="L846">		return SeleniumFixture.WEB_DRIVER.getWhenAvailable(StringUtils.EMPTY, (driver, parsedLocator) -&gt; {</span>
+<span class="pc bpc" id="L847" title="1 of 2 branches missed.">			if (driver instanceof TakesScreenshot) {</span>
+<span class="fc" id="L848">				return this.fitnesseMarkup.imgLink(((TakesScreenshot) driver).getScreenshotAs(OutputType.BASE64));</span>
+			}
+<span class="nc" id="L850">			return null;</span>
+		});
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | show | screenshot of | &lt;i&gt;locator&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Takes screenshot of the selected element and returns to be previewed in test result page.
+	 *
+	 * @return screenshot saved file absolute path
+	 * @throws IOException
+	 *             if something goes wrong while manipulating screenshot file
+	 */
+	public String screenshotOf(String locator) throws IOException {
+<span class="fc" id="L867">		return SeleniumFixture.WEB_DRIVER.getWhenAvailable(locator, (driver, parsedLocator) -&gt; {</span>
+<span class="fc" id="L868">			WebElement element = driver.findElement(parsedLocator.getBy());</span>
+<span class="pc bpc" id="L869" title="1 of 2 branches missed.">			if (element instanceof TakesScreenshot) {</span>
+<span class="fc" id="L870">				return this.fitnesseMarkup.imgLink(((TakesScreenshot) element).getScreenshotAs(OutputType.BASE64));</span>
+			}
+<span class="nc" id="L872">			return null;</span>
+		});
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | ensure | present | &lt;i&gt;locator&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | reject | present | &lt;i&gt;locator&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Verifies that the specified element is somewhere on the page (or not).
+	 * There's a few differences from SeleniumIDE version, this method also supports attributes, if the selector is something like &quot;id=&amp;lt;id&amp;gt;@&amp;lt;attributeName&amp;gt;&quot;,
+	 * this method will return true if the attribute exists on the element with any value.
+	 * &lt;p&gt;
+	 * &lt;b&gt;Note&lt;/b&gt;: Wait behavior won't work properly without selenium table
+	 *
+	 * @param locator an element locator
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean present(String locator) {
+<span class="fc" id="L897">		return Boolean.valueOf(SeleniumFixture.WEB_DRIVER.getWhenAvailable(locator, (driver, parsedLocator) -&gt; {</span>
+<span class="fc" id="L898">			boolean ensuring = Boolean.valueOf(parsedLocator.getExpectedValue());</span>
+<span class="fc" id="L899">			boolean elementFound = false;</span>
+
+			try {
+<span class="fc bfc" id="L902" title="All 2 branches covered.">				if (parsedLocator.getBy() instanceof ByWebElement) {</span>
+					// Check with the remote if it is still there by trying to execute command which has no side effects
+<span class="fc" id="L904">					driver.findElement(parsedLocator.getBy()).isDisplayed();</span>
+					// If no exception was thrown it is still there
+<span class="fc" id="L906">					elementFound = true;</span>
+				} else {
+<span class="pc bpc" id="L908" title="1 of 4 branches missed.">					elementFound = this.dialogHelper.present(driver, parsedLocator) || driver.findElement(parsedLocator.getBy()) != null;</span>
+				}
+<span class="fc" id="L910">			} catch (WebDriverException e) {</span>
+				// elemento nao foi encontrado
+<span class="fc" id="L912">			}</span>
+<span class="pc bpc" id="L913" title="3 of 4 branches missed.">			return Boolean.toString(ensuring == elementFound ? ensuring : !ensuring);</span>
+		}));
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | $elementId= | find element | &lt;i&gt;locator&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * Finds an element and returns a &lt;i&gt;webelement&lt;/i&gt; locator which can be used in other methods.
+	 * 
+	 * @param locator
+	 * @return
+	 */
+	public String findElement(String locator) {
+<span class="fc" id="L928">		return SeleniumFixture.WEB_DRIVER.getWhenAvailable(locator, (driver, parsedLocator) -&gt; {</span>
+<span class="fc" id="L929">			WebElement element = driver.findElement(parsedLocator.getBy());</span>
+<span class="fc" id="L930">			return SeleniumFixture.WEB_DRIVER.addCachedElement(element).toLocator();</span>
+		});
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | $result= | run script | &lt;i&gt;code&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Creates a new &quot;script&quot; tag in the body of the current test window, and adds the specified text into the body of the command.
+	 * Scripts run in this way can often be debugged more easily than scripts executed using Selenium's &quot;getEval&quot; command.
+	 * Beware that JS exceptions thrown in these script tags aren't managed by Selenium, so you should probably wrap your script in try/catch blocks if there is any chance that the script will throw
+	 * an exception.
+	 *
+	 * @param script the JavaScript snippet to run
+	 * @return of the javascript snippet that ran
+	 */
+	public String runScript(String script) {
+<span class="fc" id="L949">		return SeleniumFixture.WEB_DRIVER.getWhenAvailable(script, (driver, parsedLocator) -&gt; {</span>
+<span class="pc bpc" id="L950" title="1 of 2 branches missed.">			if (driver instanceof JavascriptExecutor) {</span>
+<span class="fc" id="L951">				return Objects.toString(((JavascriptExecutor) driver).executeScript(parsedLocator.getOriginalSelector()), null);</span>
+			}
+<span class="nc" id="L953">			return null;</span>
+		});
+	}
+
+	private String acceptConfigReturnPrevious(String newConfig, boolean oldValue, Consumer&lt;Boolean&gt; setter) {
+<span class="fc" id="L958">		setter.accept(this.fitnesseMarkup.onOrOffToBoolean(newConfig));</span>
+<span class="fc" id="L959">		return this.fitnesseMarkup.booleanToOnOrOff(oldValue);</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | stop test on first failure | true |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 *
+	 * @param shouldStop If &lt;b&gt;true&lt;/b&gt; or &lt;b&gt;on&lt;/b&gt;, the test will stop if a failure occurs in any action
+	 * @return previous configuration value. If enabled will return &lt;b&gt;on&lt;/b&gt;, &lt;b&gt;off&lt;/b&gt; otherwise.
+	 */
+	public String stopTestOnFirstFailure(String shouldStop) {
+<span class="fc" id="L973">		return acceptConfigReturnPrevious(shouldStop, SeleniumFixture.WEB_DRIVER.getStopTestOnFirstFailure(), SeleniumFixture.WEB_DRIVER::setStopTestOnFirstFailure);</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | set take screenshot on failure | true |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * 
+	 * @param shouldTake If &lt;b&gt;true&lt;/b&gt; or &lt;b&gt;on&lt;/b&gt;, a screenshot will be appended (if possible) to a failed selenium operation.
+	 * @return previous configuration value. If enabled will return &lt;b&gt;on&lt;/b&gt;, &lt;b&gt;off&lt;/b&gt; otherwise.
+	 */
+	public String setTakeScreenshotOnFailure(String shouldTake) {
+<span class="fc" id="L987">		return acceptConfigReturnPrevious(shouldTake, SeleniumFixture.WEB_DRIVER.getTakeScreenshotOnFailure(), SeleniumFixture.WEB_DRIVER::setTakeScreenshotOnFailure);</span>
+	}
+
+	public String setDryRun(String enableDryRun) {
+<span class="fc" id="L991">		boolean dryRun = this.fitnesseMarkup.onOrOffToBoolean(enableDryRun);</span>
+<span class="fc" id="L992">		String dryRunWindow = SeleniumFixture.WEB_DRIVER.getDryRunWindow();</span>
+<span class="fc" id="L993">		boolean isDryRunAlreadyEnabled = StringUtils.isNotBlank(dryRunWindow);</span>
+<span class="pc bpc" id="L994" title="1 of 2 branches missed.">		if (!dryRun) {</span>
+<span class="fc" id="L995">			SeleniumFixture.WEB_DRIVER.setDryRunWindow(null);</span>
+<span class="pc bpc" id="L996" title="1 of 2 branches missed.">			if (isDryRunAlreadyEnabled) {</span>
+<span class="nc" id="L997">				selectWindow(dryRunWindow);</span>
+<span class="nc" id="L998">				closeBrowserTab();</span>
+			}
+<span class="fc" id="L1000">			return this.fitnesseMarkup.booleanToOnOrOff(isDryRunAlreadyEnabled);</span>
+		}
+<span class="nc bnc" id="L1002" title="All 2 branches missed.">		if (isDryRunAlreadyEnabled) {</span>
+<span class="nc" id="L1003">			return FitnesseMarkup.ON_VALUE;</span>
+		}
+<span class="nc" id="L1005">		SeleniumFixture.WEB_DRIVER.doWhenAvailable(null, (driver, parsedLocator) -&gt; {</span>
+<span class="nc" id="L1006">			Collection&lt;String&gt; previousHandles = driver.getWindowHandles();</span>
+<span class="nc" id="L1007">			openWindow(driver, SeleniumFixture.BLANK_PAGE);</span>
+<span class="nc bnc" id="L1008" title="All 2 branches missed.">			Optional&lt;String&gt; dryRunWindowId = driver.getWindowHandles().stream().filter(w -&gt; !previousHandles.contains(w)).findFirst();</span>
+<span class="nc bnc" id="L1009" title="All 2 branches missed.">			if (!dryRunWindowId.isPresent()) {</span>
+<span class="nc" id="L1010">				throw new StopTestWithWebDriverException(&quot;Unable to create blank window to run test in dry run mode&quot;);</span>
+			}
+<span class="nc" id="L1012">			SeleniumFixture.WEB_DRIVER.setDryRunWindow(dryRunWindowId.get());</span>
+<span class="nc" id="L1013">		});</span>
+<span class="nc" id="L1014">		return FitnesseMarkup.OFF_VALUE;</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | ensure | file exists | &lt;i&gt;file&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Checks if a file exists in the local filesystem. Will respect wait timeout until file is available
+	 * &lt;p&gt;
+	 * &lt;b&gt;Important:&lt;/b&gt; If you're using remote browsers such as Selenium Grid or SauceLabs, this action probably won't be useful, unless you have access to the node's remote file system.
+	 * &lt;/p&gt;
+	 *
+	 * @param file Path of the file to check if exists
+	 * @return if the informed file exists on the filesystem
+	 */
+	public boolean fileExists(String file) {
+<span class="fc" id="L1032">		return Boolean.valueOf(SeleniumFixture.WEB_DRIVER.getWhenAvailable(file, (driver, parsedLocator) -&gt; Boolean.toString(this.fitnesseMarkup.cleanFile(parsedLocator.getOriginalSelector()).exists())));</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | ensure | is displayed | &lt;i&gt;locator&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | reject | is displayed | &lt;i&gt;locator&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Verifies that the specified element is displayed (or not).
+	 * &lt;p&gt;
+	 * &lt;b&gt;Note&lt;/b&gt;: Wait behavior won't work properly without selenium table
+	 *
+	 * @param locator
+	 *            an element locator
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean isDisplayed(String locator) {
+<span class="fc" id="L1055">		return Boolean.valueOf(SeleniumFixture.WEB_DRIVER.getWhenAvailable(locator, (driver, parsedLocator) -&gt; {</span>
+<span class="fc" id="L1056">			boolean ensuring = Boolean.valueOf(parsedLocator.getExpectedValue());</span>
+<span class="fc" id="L1057">			Optional&lt;WebElement&gt; element = driver.findElements(parsedLocator.getBy()).stream().filter(WebElement::isDisplayed).findFirst();</span>
+<span class="pc bpc" id="L1058" title="3 of 4 branches missed.">			return Boolean.toString(ensuring == element.isPresent() ? ensuring : !ensuring);</span>
+		}));
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | ensure | is enabled | &lt;i&gt;locator&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | reject | is enabled | &lt;i&gt;locator&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Verifies that the specified element is enabled (or not).
+	 * &lt;p&gt;
+	 * &lt;b&gt;Note&lt;/b&gt;: Wait behavior won't work properly without selenium table
+	 *
+	 * @param locator
+	 *            an element locator
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean isEnabled(String locator) {
+<span class="fc" id="L1082">		return Boolean.valueOf(SeleniumFixture.WEB_DRIVER.getWhenAvailable(locator, (driver, parsedLocator) -&gt; {</span>
+<span class="fc" id="L1083">			boolean ensuring = Boolean.valueOf(parsedLocator.getExpectedValue());</span>
+<span class="fc" id="L1084">			WebElement element = driver.findElement(parsedLocator.getBy());</span>
+<span class="pc bpc" id="L1085" title="3 of 4 branches missed.">			return Boolean.toString(ensuring == element.isEnabled() ? ensuring : !ensuring);</span>
+		}));
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | ensure | is selected | &lt;i&gt;locator&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | reject | is selected | &lt;i&gt;locator&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Verifies that the specified element is selected (or not).
+	 * &lt;p&gt;
+	 * &lt;b&gt;Note&lt;/b&gt;: Wait behavior won't work properly without selenium table
+	 *
+	 * @param locator
+	 *            an element locator
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean isSelected(String locator) {
+<span class="fc" id="L1109">		return Boolean.valueOf(SeleniumFixture.WEB_DRIVER.getWhenAvailable(locator, (driver, parsedLocator) -&gt; {</span>
+<span class="fc" id="L1110">			boolean ensuring = Boolean.valueOf(parsedLocator.getExpectedValue());</span>
+<span class="fc" id="L1111">			WebElement element = driver.findElement(parsedLocator.getBy());</span>
+<span class="pc bpc" id="L1112" title="3 of 4 branches missed.">			return Boolean.toString(ensuring == element.isSelected() ? ensuring : !ensuring);</span>
+		}));
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | ensure | action move to element | &lt;i&gt;locator&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Moves the mouse to the first displayed element.
+	 * &lt;p&gt;
+	 * &lt;b&gt;Note&lt;/b&gt;: Wait behavior won't work properly without selenium table
+	 *
+	 * @param locator
+	 *            an element locator
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean actionMoveToElement(String locator) {
+<span class="fc" id="L1131">		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(locator, (driver, parsedLocator) -&gt; {</span>
+<span class="fc" id="L1132">			Optional&lt;WebElement&gt; element = driver.findElements(parsedLocator.getBy()).stream().filter(WebElement::isDisplayed).findFirst();</span>
+<span class="pc bpc" id="L1133" title="1 of 2 branches missed.">			if (!element.isPresent()) {</span>
+<span class="nc" id="L1134">				throw new InvalidElementStateException(&quot;No displayed element found.&quot;);</span>
+			}
+<span class="fc" id="L1136">			new Actions(driver).moveToElement(element.get()).perform();</span>
+<span class="fc" id="L1137">		});</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | ensure | action move to element | &lt;i&gt;locator&lt;/i&gt; | at | &lt;i&gt;x-offset&lt;/i&gt; | and | &lt;i&gt;y-offset&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Moves the mouse to the first displayed element with a given offset in pixels.
+	 * &lt;p&gt;
+	 * &lt;b&gt;Note&lt;/b&gt;: Wait behavior won't work properly without selenium table
+	 *
+	 * @param locator
+	 *            an element locator
+	 * @param xOffset
+	 *            relative x offset in pixels
+	 * @param yOffset
+	 *            relative y offset in pixels
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean actionMoveToElementAtAnd(String locator, int xOffset, int yOffset) {
+<span class="fc" id="L1159">		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(locator, (driver, parsedLocator) -&gt; {</span>
+<span class="fc" id="L1160">			Optional&lt;WebElement&gt; element = driver.findElements(parsedLocator.getBy()).stream().filter(WebElement::isDisplayed).findFirst();</span>
+<span class="pc bpc" id="L1161" title="1 of 2 branches missed.">			if (!element.isPresent()) {</span>
+<span class="nc" id="L1162">				throw new InvalidElementStateException(&quot;No displayed element found.&quot;);</span>
+			}
+<span class="fc" id="L1164">			new Actions(driver).moveToElement(element.get(), xOffset, yOffset).perform();</span>
+<span class="fc" id="L1165">		});</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | ensure | action move by offset | &lt;i&gt;x-offset&lt;/i&gt; | and | &lt;i&gt;y-offset&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Moves with a given offset in pixels.
+	 * &lt;p&gt;
+	 * &lt;b&gt;Note&lt;/b&gt;: Wait behavior won't work properly without selenium table
+	 *
+	 * @param xOffset
+	 *            relative x offset in pixels
+	 * @param yOffset
+	 *            relative y offset in pixels
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean actionMoveByOffsetAnd(int xOffset, int yOffset) {
+<span class="fc" id="L1185">		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(StringUtils.EMPTY, (driver, parsedLocator) -&gt; new Actions(driver).moveByOffset(xOffset, yOffset).perform());</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | action click |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Press the left mouse button at the current location. Note that this performs a mouse operation rather than triggering the click event handler on an element.
+	 * &lt;p&gt;
+	 * &lt;b&gt;Note&lt;/b&gt;: Wait behavior won't work properly without selenium table
+	 *
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean actionClick() {
+<span class="fc" id="L1201">		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(StringUtils.EMPTY, (driver, parsedLocator) -&gt; new Actions(driver).click().perform());</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | ensure | action click | &lt;i&gt;selector&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Move the mouse to the selector and press the left mouse button.
+	 * &lt;p&gt;
+	 * &lt;b&gt;Note&lt;/b&gt;: Wait behavior won't work properly without selenium table
+	 *
+	 * @param locator
+	 *            an element locator
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean actionClick(String locator) {
+<span class="fc" id="L1219">		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(locator, (driver, parsedLocator) -&gt; {</span>
+<span class="fc" id="L1220">			Optional&lt;WebElement&gt; element = driver.findElements(parsedLocator.getBy()).stream().filter(WebElement::isDisplayed).findFirst();</span>
+<span class="pc bpc" id="L1221" title="1 of 2 branches missed.">			if (!element.isPresent()) {</span>
+<span class="nc" id="L1222">				throw new InvalidElementStateException(&quot;No displayed element found.&quot;);</span>
+			}
+<span class="fc" id="L1224">			new Actions(driver).click(element.get()).perform();</span>
+<span class="fc" id="L1225">		});</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | action click and hold |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Press the left mouse button at the current location and keep it down
+	 * &lt;p&gt;
+	 * &lt;b&gt;Note&lt;/b&gt;: Wait behavior won't work properly without selenium table
+	 *
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean actionClickAndHold() {
+<span class="fc" id="L1241">		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(StringUtils.EMPTY, (driver, parsedLocator) -&gt; new Actions(driver).clickAndHold().perform());</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | ensure | action click and hold | &lt;i&gt;selector&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Move the mouse to the selector, press the left mouse button and keep it down.
+	 * &lt;p&gt;
+	 * &lt;b&gt;Note&lt;/b&gt;: Wait behavior won't work properly without selenium table
+	 *
+	 * @param locator
+	 *            an element locator
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean actionClickAndHold(String locator) {
+<span class="fc" id="L1259">		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(locator, (driver, parsedLocator) -&gt; {</span>
+<span class="fc" id="L1260">			Optional&lt;WebElement&gt; element = driver.findElements(parsedLocator.getBy()).stream().filter(WebElement::isDisplayed).findFirst();</span>
+<span class="pc bpc" id="L1261" title="1 of 2 branches missed.">			if (!element.isPresent()) {</span>
+<span class="nc" id="L1262">				throw new InvalidElementStateException(&quot;No displayed element found.&quot;);</span>
+			}
+<span class="fc" id="L1264">			new Actions(driver).clickAndHold(element.get()).perform();</span>
+<span class="fc" id="L1265">		});</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | action double click |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Press the left mouse button at the current location twice.
+	 * &lt;p&gt;
+	 * &lt;b&gt;Note&lt;/b&gt;: Wait behavior won't work properly without selenium table
+	 *
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean actionDoubleClick() {
+<span class="fc" id="L1281">		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(StringUtils.EMPTY, (driver, parsedLocator) -&gt; new Actions(driver).doubleClick().perform());</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | ensure | action double click | &lt;i&gt;selector&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Move the mouse to the selector and press the left mouse button twice.
+	 * &lt;p&gt;
+	 * &lt;b&gt;Note&lt;/b&gt;: Wait behavior won't work properly without selenium table
+	 *
+	 * @param locator
+	 *            an element locator
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean actionDoubleClick(String locator) {
+<span class="fc" id="L1299">		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(locator, (driver, parsedLocator) -&gt; {</span>
+<span class="fc" id="L1300">			Optional&lt;WebElement&gt; element = driver.findElements(parsedLocator.getBy()).stream().filter(WebElement::isDisplayed).findFirst();</span>
+<span class="pc bpc" id="L1301" title="1 of 2 branches missed.">			if (!element.isPresent()) {</span>
+<span class="nc" id="L1302">				throw new InvalidElementStateException(&quot;No displayed element found.&quot;);</span>
+			}
+<span class="fc" id="L1304">			new Actions(driver).doubleClick(element.get()).perform();</span>
+<span class="fc" id="L1305">		});</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | action context click |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Press the right mouse button at the current location
+	 * &lt;p&gt;
+	 * &lt;b&gt;Note&lt;/b&gt;: Wait behavior won't work properly without selenium table
+	 *
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean actionContextClick() {
+<span class="fc" id="L1321">		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(StringUtils.EMPTY, (driver, parsedLocator) -&gt; new Actions(driver).contextClick().perform());</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | ensure | action context click | &lt;i&gt;selector&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Move the mouse to the selector and press the right mouse button.
+	 * &lt;p&gt;
+	 * &lt;b&gt;Note&lt;/b&gt;: Wait behavior won't work properly without selenium table
+	 *
+	 * @param locator
+	 *            an element locator
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean actionContextClick(String locator) {
+<span class="fc" id="L1339">		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(locator, (driver, parsedLocator) -&gt; {</span>
+<span class="fc" id="L1340">			Optional&lt;WebElement&gt; element = driver.findElements(parsedLocator.getBy()).stream().filter(WebElement::isDisplayed).findFirst();</span>
+<span class="pc bpc" id="L1341" title="1 of 2 branches missed.">			if (!element.isPresent()) {</span>
+<span class="nc" id="L1342">				throw new InvalidElementStateException(&quot;No displayed element found.&quot;);</span>
+			}
+<span class="fc" id="L1344">			new Actions(driver).contextClick(element.get()).perform();</span>
+<span class="fc" id="L1345">		});</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | action release |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Release the pressed left mouse button at the current location.
+	 * &lt;p&gt;
+	 * &lt;b&gt;Note&lt;/b&gt;: Wait behavior won't work properly without selenium table
+	 *
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean actionRelease() {
+<span class="fc" id="L1361">		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(StringUtils.EMPTY, (driver, parsedLocator) -&gt; new Actions(driver).release().perform());</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | ensure | action release | &lt;i&gt;selector&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Move to the selector and release the pressed left mouse button.
+	 * &lt;p&gt;
+	 * &lt;b&gt;Note&lt;/b&gt;: Wait behavior won't work properly without selenium table
+	 *
+	 * @param locator
+	 *            an element locator
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean actionRelease(String locator) {
+<span class="fc" id="L1379">		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(locator, (driver, parsedLocator) -&gt; {</span>
+<span class="fc" id="L1380">			Optional&lt;WebElement&gt; element = driver.findElements(parsedLocator.getBy()).stream().filter(WebElement::isDisplayed).findFirst();</span>
+<span class="pc bpc" id="L1381" title="1 of 2 branches missed.">			if (!element.isPresent()) {</span>
+<span class="nc" id="L1382">				throw new InvalidElementStateException(&quot;No displayed element found.&quot;);</span>
+			}
+<span class="fc" id="L1384">			new Actions(driver).release(element.get()).perform();</span>
+<span class="fc" id="L1385">		});</span>
+	}
+
+	/**
+	 * &lt;p&gt;
+	 * &lt;code&gt;
+	 * | ensure | action pause | &lt;i&gt;milliseconds&lt;/i&gt; |
+	 * &lt;/code&gt;
+	 * &lt;/p&gt;
+	 * Do not perform an action for the given milliseconds
+	 * &lt;p&gt;
+	 * &lt;b&gt;Note&lt;/b&gt;: Wait behavior won't work properly without selenium table
+	 *
+	 * @return result Boolean result indication of assertion/operation
+	 */
+	public boolean actionPause(long pause) {
+<span class="fc" id="L1401">		return SeleniumFixture.WEB_DRIVER.doWhenAvailable(StringUtils.EMPTY, (driver, parsedLocator) -&gt; new Actions(driver).pause(pause).perform());</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

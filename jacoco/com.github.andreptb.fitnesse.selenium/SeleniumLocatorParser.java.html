@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SeleniumLocatorParser.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">fitnesse-selenium-slim</a> &gt; <a href="index.source.html" class="el_package">com.github.andreptb.fitnesse.selenium</a> &gt; <span class="el_source">SeleniumLocatorParser.java</span></div><h1>SeleniumLocatorParser.java</h1><pre class="source lang-java linenums">
+package com.github.andreptb.fitnesse.selenium;
+
+import java.util.Arrays;
+import java.util.List;
+
+import org.apache.commons.lang3.EnumUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.openqa.selenium.By;
+import org.openqa.selenium.SearchContext;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+
+import com.github.andreptb.fitnesse.util.FitnesseMarkup;
+
+<span class="fc" id="L17">public class SeleniumLocatorParser {</span>
+
+	/**
+	 * Utility to process FitNesse markup
+	 */
+<span class="fc" id="L22">	private FitnesseMarkup fitnesseMarkup = new FitnesseMarkup();</span>
+
+	/**
+	 * enum mapping selector identifier with selector implementation ({@link By} implementations).
+	 */
+<span class="fc" id="L27">	private enum LocatorType {</span>
+<span class="fc" id="L28">		id(By.ById.class),</span>
+<span class="fc" id="L29">		name(By.ByName.class),</span>
+<span class="fc" id="L30">		css(By.ByCssSelector.class),</span>
+<span class="fc" id="L31">		xpath(By.ByXPath.class),</span>
+<span class="fc" id="L32">		link(By.ByLinkText.class),</span>
+<span class="fc" id="L33">		webelement(ByWebElement.class);</span>
+
+		private Class&lt;? extends By&gt; byClass;
+
+<span class="fc" id="L37">		LocatorType(Class&lt;? extends By&gt; byClass) {</span>
+<span class="fc" id="L38">			this.byClass = byClass;</span>
+<span class="fc" id="L39">		}</span>
+	}
+
+	/**
+	 * Parses locator to an instance of {@link WebElementSelector}. Tries to emulate Selenium IDE searching methods:
+	 * &lt;ul&gt;
+	 * &lt;li&gt;By id: 'id=&amp;lt;id&amp;gt;'&lt;/li&gt;
+	 * &lt;li&gt;By name: 'name=&amp;lt;name&amp;gt;'&lt;/li&gt;
+	 * &lt;li&gt;By css selector: 'css=#&amp;lt;id&amp;gt;'&lt;/li&gt;
+	 * &lt;li&gt;By link text selector: 'link=#&amp;lt;linktext&amp;gt;'&lt;/li&gt;
+	 * &lt;li&gt;By xpath selector: 'div[@id=&amp;lt;id&amp;gt;]'&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 * Just like SeleniumIDE, attribute name is parsed from selector when element locator is followed by an @ sign and then the name of the attribute. For Example:
+	 * &lt;ul&gt;
+	 * &lt;li&gt;'id=&amp;lt;id&amp;gt;@&amp;lt;attributeName&amp;gt;'&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 *
+	 * @param locator to be parsed
+	 * @return instance of {@link WebElementSelector}
+	 */
+	public WebElementSelector parse(String locator) {
+<span class="fc" id="L60">		Pair&lt;String, String&gt; elementAndValue = this.fitnesseMarkup.cleanAndParseKeyValue(locator, FitnesseMarkup.SELECTOR_VALUE_SEPARATOR);</span>
+<span class="fc" id="L61">		return new WebElementSelector(elementAndValue.getKey(), parseBy(elementAndValue.getKey()), elementAndValue.getValue());</span>
+	}
+
+	private By parseBy(String locator) {
+<span class="fc bfc" id="L65" title="All 2 branches covered.">		if (StringUtils.isBlank(locator)) {</span>
+<span class="fc" id="L66">			return new ByFocus();</span>
+		}
+<span class="fc" id="L68">		Pair&lt;String, String&gt; prefixAndSelector = this.fitnesseMarkup.cleanAndParseKeyValue(locator, FitnesseMarkup.KEY_VALUE_SEPARATOR);</span>
+<span class="fc" id="L69">		String prefix = prefixAndSelector.getKey();</span>
+<span class="fc" id="L70">		String selector = prefixAndSelector.getValue();</span>
+<span class="fc" id="L71">		LocatorType selectorType = EnumUtils.getEnum(LocatorType.class, prefix);</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">		if (selectorType == null) {</span>
+<span class="fc" id="L73">			selector = locator;</span>
+<span class="fc" id="L74">			selectorType = LocatorType.xpath;</span>
+		}
+
+		try {
+<span class="fc" id="L78">			return selectorType.byClass.getConstructor(String.class).newInstance(selector);</span>
+<span class="nc" id="L79">		} catch (ReflectiveOperationException e) {</span>
+<span class="nc" id="L80">			throw new IllegalStateException(&quot;Unexpected failure instantiating selector: &quot; + prefix, e);</span>
+		}
+	}
+
+	/**
+	 * {@link By} implementation that returns the currently focused element
+	 */
+<span class="fc" id="L87">	public static class ByFocus extends By {</span>
+
+		@Override
+		public List&lt;WebElement&gt; findElements(SearchContext context) {
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">			if (context instanceof WebDriver) {</span>
+<span class="fc" id="L92">				return Arrays.asList(((WebDriver) context).switchTo().activeElement());</span>
+			}
+<span class="nc" id="L94">			return null;</span>
+		}
+	}
+
+	public static class WebElementSelector {
+
+		private String originalSelector;
+		private By by;
+		private String expectedValue;
+
+<span class="fc" id="L104">		public WebElementSelector(String originalSelector, By by, String expectedValue) {</span>
+<span class="fc" id="L105">			this.originalSelector = originalSelector;</span>
+<span class="fc" id="L106">			this.by = by;</span>
+<span class="fc" id="L107">			this.expectedValue = expectedValue;</span>
+<span class="fc" id="L108">		}</span>
+
+		public String getOriginalSelector() {
+<span class="fc" id="L111">			return this.originalSelector;</span>
+		}
+
+		public By getBy() {
+<span class="fc" id="L115">			return this.by;</span>
+		}
+
+		public String getExpectedValue() {
+<span class="fc" id="L119">			return this.expectedValue;</span>
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

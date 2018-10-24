@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SeleniumScriptTable.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">fitnesse-selenium-slim</a> &gt; <a href="index.source.html" class="el_package">com.github.andreptb.fitnesse.plugins</a> &gt; <span class="el_source">SeleniumScriptTable.java</span></div><h1>SeleniumScriptTable.java</h1><pre class="source lang-java linenums">
+package com.github.andreptb.fitnesse.plugins;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.lang3.reflect.FieldUtils;
+import org.apache.commons.lang3.reflect.MethodUtils;
+
+import com.github.andreptb.fitnesse.SeleniumFixture;
+import com.github.andreptb.fitnesse.util.FitnesseMarkup;
+
+import fitnesse.slim.instructions.CallInstruction;
+import fitnesse.slim.instructions.ImportInstruction;
+import fitnesse.slim.instructions.Instruction;
+import fitnesse.testsystems.TestResult;
+import fitnesse.testsystems.slim.SlimTestContext;
+import fitnesse.testsystems.slim.Table;
+import fitnesse.testsystems.slim.results.SlimExceptionResult;
+import fitnesse.testsystems.slim.tables.ScriptTable;
+import fitnesse.testsystems.slim.tables.SlimAssertion;
+import fitnesse.testsystems.slim.tables.SlimExpectation;
+
+/**
+ * Selenium table, works just like ScriptTable, but adds extra features such as step screenshots and provide extra information to the fixture, allowing wait behavior for check and ensure actions
+ */
+public class SeleniumScriptTable extends ScriptTable {
+
+	/**
+	 * JUL Logger instance
+	 */
+<span class="fc" id="L43">	private static final Logger LOGGER = Logger.getLogger(SeleniumScriptTable.class.getName());</span>
+
+	/**
+	 * Table keyword constant
+	 */
+	public static final String TABLE_KEYWORD = &quot;selenium&quot;;
+	/**
+	 * Table type constant
+	 */
+	private static final String TABLE_TYPE = SeleniumScriptTable.TABLE_KEYWORD + &quot;Script&quot;;
+	/**
+	 * Fixture package to auto-import package
+	 */
+	private static final String SELENIUM_FIXTURE_PACKAGE_TO_IMPORT = &quot;com.github.andreptb.fitnesse&quot;;
+
+	/**
+	 * Constant to reference {@link CallInstruction} args private field
+	 */
+	private static final String CALL_INSTRUCTION_METHODNAME_FIELD = &quot;methodName&quot;;
+	/**
+	 * Constant to reference {@link CallInstruction} args private field
+	 */
+	private static final String CALL_INSTRUCTION_ARGS_FIELD = &quot;args&quot;;
+	/**
+	 * Utility to process FitNesse markup
+	 */
+<span class="fc" id="L69">	private FitnesseMarkup fitnesseMarkup = new FitnesseMarkup();</span>
+
+	public SeleniumScriptTable(Table table, String id, SlimTestContext testContext) {
+<span class="fc" id="L72">		super(table, id, testContext);</span>
+<span class="fc" id="L73">	}</span>
+
+	@Override
+	protected String getTableType() {
+<span class="fc" id="L77">		return SeleniumScriptTable.TABLE_TYPE;</span>
+	}
+
+	@Override
+	protected String getTableKeyword() {
+<span class="fc" id="L82">		return SeleniumScriptTable.TABLE_KEYWORD;</span>
+	}
+
+	/**
+	 * Overrides start actor to force the use of Selenium Fixture. Auto imports selenium fixture if needed
+	 */
+	@Override
+	protected List&lt;SlimAssertion&gt; startActor() {
+<span class="fc" id="L90">		List&lt;SlimAssertion&gt; assertions = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L91">		assertions.add(makeAssertion(new ImportInstruction(ImportInstruction.INSTRUCTION, SeleniumScriptTable.SELENIUM_FIXTURE_PACKAGE_TO_IMPORT), SlimExpectation.NOOP_EXPECTATION));</span>
+<span class="fc" id="L92">		assertions.addAll(startActor(NumberUtils.INTEGER_ZERO, SeleniumFixture.class.getName(), NumberUtils.INTEGER_ZERO));</span>
+<span class="fc" id="L93">		return assertions;</span>
+	}
+
+	@Override
+	protected List&lt;SlimAssertion&gt; ensure(int row) {
+<span class="fc" id="L98">		List&lt;SlimAssertion&gt; assertions = super.ensure(row);</span>
+<span class="fc" id="L99">		injectValueInFirstArg(assertions, false, true);</span>
+<span class="fc" id="L100">		return assertions;</span>
+	}
+
+	@Override
+	protected List&lt;SlimAssertion&gt; reject(int row) {
+<span class="fc" id="L105">		List&lt;SlimAssertion&gt; assertions = super.reject(row);</span>
+<span class="fc" id="L106">		injectValueInFirstArg(assertions, false, false);</span>
+<span class="fc" id="L107">		return assertions;</span>
+	}
+
+	@Override
+	protected List&lt;SlimAssertion&gt; checkAction(int row) {
+<span class="fc" id="L112">		List&lt;SlimAssertion&gt; assertions = super.checkAction(row);</span>
+<span class="fc" id="L113">		injectResultToAction(row, assertions, false);</span>
+<span class="fc" id="L114">		return assertions;</span>
+	}
+
+	@Override
+	protected List&lt;SlimAssertion&gt; checkNotAction(int row) {
+<span class="fc" id="L119">		List&lt;SlimAssertion&gt; assertions = super.checkNotAction(row);</span>
+<span class="fc" id="L120">		injectResultToAction(row, assertions, true);</span>
+<span class="fc" id="L121">		return assertions;</span>
+	}
+
+	private void injectResultToAction(int row, List&lt;SlimAssertion&gt; assertions, boolean not) {
+<span class="fc" id="L125">		String contentToCheck = this.fitnesseMarkup.clean(this.table.getCellContents(this.table.getColumnCountInRow(row) - 1, row));</span>
+<span class="pc bpc" id="L126" title="2 of 4 branches missed.">		if (CollectionUtils.isEmpty(assertions) || StringUtils.isBlank(contentToCheck)) {</span>
+<span class="nc" id="L127">			return;</span>
+		}
+<span class="fc" id="L129">		injectValueInFirstArg(assertions, not, contentToCheck);</span>
+<span class="fc" id="L130">	}</span>
+
+	private void injectValueInFirstArg(List&lt;SlimAssertion&gt; assertions, boolean not, Object contentToCheck) {
+<span class="fc" id="L133">		SlimAssertion.getInstructions(assertions).forEach(instruction -&gt; {</span>
+			try {
+<span class="fc bfc" id="L135" title="All 2 branches covered.">				String valueToInject = FitnesseMarkup.SELECTOR_VALUE_SEPARATOR + (not ? FitnesseMarkup.SELECTOR_VALUE_DENY_INDICATOR : StringUtils.EMPTY) + contentToCheck;</span>
+<span class="fc" id="L136">				Object args = FieldUtils.readField(instruction, SeleniumScriptTable.CALL_INSTRUCTION_ARGS_FIELD, true);</span>
+				Object[] argsToInject;
+<span class="pc bpc" id="L138" title="1 of 4 branches missed.">				if (args instanceof Object[] &amp;&amp; ArrayUtils.getLength(args) &gt; NumberUtils.INTEGER_ZERO) {</span>
+<span class="fc" id="L139">					argsToInject = (Object[]) args;</span>
+<span class="fc" id="L140">					argsToInject[NumberUtils.INTEGER_ZERO] += valueToInject;</span>
+				} else {
+<span class="fc" id="L142">					argsToInject = ArrayUtils.toArray(valueToInject);</span>
+				}
+<span class="fc" id="L144">				String methodName = Objects.toString(FieldUtils.readField(instruction, SeleniumScriptTable.CALL_INSTRUCTION_METHODNAME_FIELD, true));</span>
+<span class="fc bfc" id="L145" title="All 2 branches covered.">				if (Objects.isNull(MethodUtils.getAccessibleMethod(SeleniumFixture.class, Objects.toString(methodName), ClassUtils.toClass(argsToInject)))) {</span>
+<span class="fc" id="L146">					SeleniumScriptTable.LOGGER.fine(&quot;Method for instruction not found on SeleniumFixture, injection aborted: &quot; + instruction);</span>
+<span class="fc" id="L147">					return;</span>
+				}
+<span class="fc" id="L149">				FieldUtils.writeField(instruction, SeleniumScriptTable.CALL_INSTRUCTION_ARGS_FIELD, argsToInject, true);</span>
+<span class="nc" id="L150">			} catch (IllegalArgumentException | ReflectiveOperationException e) {</span>
+<span class="nc" id="L151">				SeleniumScriptTable.LOGGER.log(Level.FINE, &quot;Failed to inject check value using reflection&quot;, e);</span>
+<span class="fc" id="L152">			}</span>
+<span class="fc" id="L153">		});</span>
+<span class="fc" id="L154">	}</span>
+
+	@Override
+	protected List&lt;SlimAssertion&gt; actionAndAssign(String symbolName, int row) {
+<span class="fc" id="L158">		return super.actionAndAssign(symbolName, row).stream().map(assertion -&gt; {</span>
+<span class="fc" id="L159">			Optional&lt;Instruction&gt; instruction = SlimAssertion.getInstructions(Arrays.asList(assertion)).stream().findFirst();</span>
+<span class="fc bfc" id="L160" title="All 2 branches covered.">			if (instruction.isPresent()) {</span>
+<span class="fc" id="L161">				ScreenshotEmbedderSlimExpectation expectation = new ScreenshotEmbedderSlimExpectation(assertion.getExpectation());</span>
+<span class="fc" id="L162">				return super.makeAssertion(instruction.get(), expectation);</span>
+			}
+<span class="fc" id="L164">			return assertion;</span>
+<span class="fc" id="L165">		}).collect(Collectors.toList());</span>
+	}
+
+	@Override
+	protected List&lt;SlimAssertion&gt; invokeAction(int startingCol, int endingCol, int row, SlimExpectation expectation) {
+<span class="fc" id="L170">		return super.invokeAction(startingCol, endingCol, row, new ScreenshotEmbedderSlimExpectation(expectation));</span>
+	}
+
+	private class ScreenshotEmbedderSlimExpectation implements SlimExpectation {
+
+		private SlimExpectation original;
+
+<span class="fc" id="L177">		ScreenshotEmbedderSlimExpectation(SlimExpectation original) {</span>
+<span class="fc" id="L178">			this.original = original;</span>
+<span class="fc" id="L179">		}</span>
+
+		@Override
+		public TestResult evaluateExpectation(Object returnValues) {
+<span class="fc" id="L183">			return this.original.evaluateExpectation(returnValues);</span>
+		}
+
+		@Override
+		public SlimExceptionResult evaluateException(SlimExceptionResult exceptionResult) {
+<span class="nc" id="L188">			SlimExceptionResult result = this.original.evaluateException(exceptionResult);</span>
+<span class="nc bnc" id="L189" title="All 2 branches missed.">			if (this.original instanceof RowExpectation) {</span>
+<span class="nc" id="L190">				String screenshot = SeleniumScriptTable.this.fitnesseMarkup.imgLinkFromExceptionMessage(exceptionResult.getException());</span>
+<span class="nc bnc" id="L191" title="All 2 branches missed.">				if (StringUtils.isNotBlank(screenshot)) {</span>
+<span class="nc" id="L192">					SeleniumScriptTable.this.getTable().addColumnToRow(((RowExpectation) this.original).getRow(), screenshot);</span>
+				}
+			}
+<span class="nc" id="L195">			return result;</span>
+		}
+
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

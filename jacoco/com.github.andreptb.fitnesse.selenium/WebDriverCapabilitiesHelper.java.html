@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WebDriverCapabilitiesHelper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">fitnesse-selenium-slim</a> &gt; <a href="index.source.html" class="el_package">com.github.andreptb.fitnesse.selenium</a> &gt; <span class="el_source">WebDriverCapabilitiesHelper.java</span></div><h1>WebDriverCapabilitiesHelper.java</h1><pre class="source lang-java linenums">
+package com.github.andreptb.fitnesse.selenium;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang3.EnumUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.openqa.selenium.Capabilities;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.firefox.FirefoxProfile;
+import org.openqa.selenium.ie.InternetExplorerDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
+
+/**
+ * Utility class to produce browser driver capabilities. Parses and inject default capabilities commonly used in test environments
+ */
+<span class="fc" id="L27">public class WebDriverCapabilitiesHelper {</span>
+
+	private static final String FIREFOX_ALLOWED_DOWNLOAD_CONTENT_TYPES = &quot;application/msword, application/csv, application/ris, text/csv, image/png, application/pdf, text/html, text/plain, application/zip, application/x-zip, application/x-zip-compressed, application/download, application/octet-stream&quot;;
+	/**
+	 * Pattern to parse capability string. Expected format: key='value' or key=&quot;value&quot;
+	 */
+<span class="fc" id="L33">	private static final Pattern ENCODED_CONFIG_PATTERN = Pattern.compile(&quot;\\s*([^=]+)=['\&quot;]([^'\&quot;]+)['\&quot;]&quot;);</span>
+
+	private static final String HEADLESS_CAPABILITY = &quot;headless&quot;;
+
+	/**
+	 * Enum to inject preferences and capabilities according to the browser. Will inject default preferences or capabilities if applicable
+	 */
+<span class="fc" id="L40">	private enum CapabilitiesAndPreferencesInjector {</span>
+<span class="fc" id="L41">		chrome((capabilities, preferences) -&gt; {</span>
+<span class="nc" id="L42">			ChromeOptions chromeOptions = new ChromeOptions();</span>
+<span class="nc" id="L43">			CapabilitiesAndPreferencesInjector.applyIfUndefined(&quot;disable-popup-blocking&quot;, Boolean.TRUE.toString(), preferences::getOrDefault, preferences::put);</span>
+<span class="nc" id="L44">			chromeOptions.setExperimentalOption(&quot;prefs&quot;, preferences);</span>
+<span class="nc bnc" id="L45" title="All 2 branches missed.">			if (capabilities.getCapability(HEADLESS_CAPABILITY) != null) {</span>
+<span class="nc" id="L46">				chromeOptions.setHeadless(Boolean.parseBoolean(Objects.toString(capabilities.getCapability(HEADLESS_CAPABILITY))));</span>
+			}
+<span class="nc" id="L48">			capabilities.setCapability(ChromeOptions.CAPABILITY, chromeOptions);</span>
+<span class="nc" id="L49">		}),</span>
+<span class="fc" id="L50">		firefox((capabilities, preferences) -&gt; {</span>
+<span class="fc" id="L51">			FirefoxProfile firefoxProfile = new FirefoxProfile();</span>
+<span class="fc" id="L52">			firefoxProfile.setAcceptUntrustedCertificates(true);</span>
+<span class="pc" id="L53">			preferences.forEach((key, value) -&gt; firefoxProfile.setPreference(key, value));</span>
+<span class="fc" id="L54">			CapabilitiesAndPreferencesInjector.applyIfUndefined(&quot;browser.download.folderList&quot;, 2, firefoxProfile::getIntegerPreference, firefoxProfile::setPreference);</span>
+<span class="fc" id="L55">			CapabilitiesAndPreferencesInjector.applyIfUndefined(&quot;plugin.state.java&quot;, 2, firefoxProfile::getIntegerPreference, firefoxProfile::setPreference);</span>
+<span class="fc" id="L56">			CapabilitiesAndPreferencesInjector.applyIfUndefined(&quot;security.enable_java&quot;, true, firefoxProfile::getBooleanPreference, firefoxProfile::setPreference);</span>
+<span class="fc" id="L57">			CapabilitiesAndPreferencesInjector.applyIfUndefined(&quot;browser.helperApps.neverAsk.saveToDisk&quot;, WebDriverCapabilitiesHelper.FIREFOX_ALLOWED_DOWNLOAD_CONTENT_TYPES, firefoxProfile::getStringPreference, firefoxProfile::setPreference);</span>
+<span class="fc" id="L58">			capabilities.setCapability(FirefoxDriver.PROFILE, firefoxProfile);</span>
+
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">			if (capabilities.getCapability(HEADLESS_CAPABILITY) != null) {</span>
+<span class="fc" id="L61">				FirefoxOptions firefoxOptions = new FirefoxOptions();</span>
+<span class="fc" id="L62">				firefoxOptions.setHeadless(Boolean.parseBoolean(Objects.toString(capabilities.getCapability(HEADLESS_CAPABILITY))));</span>
+<span class="fc" id="L63">				capabilities.setCapability(FirefoxOptions.FIREFOX_OPTIONS, firefoxOptions);</span>
+			}
+<span class="fc" id="L65">		}),</span>
+<span class="fc" id="L66">		internetexplorer((capabilities, preferences) -&gt; {</span>
+<span class="nc" id="L67">			capabilities.setCapability(InternetExplorerDriver.INTRODUCE_FLAKINESS_BY_IGNORING_SECURITY_DOMAINS, true);</span>
+<span class="nc" id="L68">		});</span>
+
+		private BiConsumer&lt;DesiredCapabilities, Map&lt;String, String&gt;&gt; injector;
+
+<span class="fc" id="L72">		private CapabilitiesAndPreferencesInjector(BiConsumer&lt;DesiredCapabilities, Map&lt;String, String&gt;&gt; injector) {</span>
+<span class="fc" id="L73">			this.injector = injector;</span>
+<span class="fc" id="L74">		}</span>
+
+		private static &lt;K, V&gt; void applyIfUndefined(K key, V defaultValue, BiFunction&lt;K, V, V&gt; configProvider, BiConsumer&lt;K, V&gt; configApplier) {
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">			if (StringUtils.isBlank(Objects.toString(defaultValue, null))) {</span>
+<span class="nc" id="L78">				return;</span>
+			}
+<span class="fc" id="L80">			configApplier.accept(key, configProvider.apply(key, defaultValue));</span>
+<span class="fc" id="L81">		}</span>
+	}
+
+	/**
+	 * Creates {@link Capabilities} from string. Injects default preferences to supported browsers
+	 * Supported formats:
+	 * &lt;p&gt;
+	 * key1='value1' key2='value with space 2' key3='value3'
+	 * &lt;/p&gt;
+	 * &lt;p&gt;
+	 * key1=&quot;value1&quot; key2=&quot;value with space 2&quot; key3=&quot;value3&quot;
+	 * &lt;/p&gt;
+	 *
+	 * @see CapabilitiesAndPreferencesInjector
+	 * @param browser Used to determine default configurations to inject
+	 * @param capabilities {@link String}
+	 * @param preferences Directory to save browser downloaded files
+	 * @return capabilitiesInstance which is an instanceof {@link Capabilities}
+	 */
+	public DesiredCapabilities parse(String browser, String capabilities, String preferences) {
+<span class="fc" id="L101">		DesiredCapabilities desiredCapabilities = new DesiredCapabilities();</span>
+<span class="fc" id="L102">		parseFromString(capabilities, desiredCapabilities::setCapability);</span>
+<span class="fc" id="L103">		Map&lt;String, String&gt; parsedPreferences = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L104">		parseFromString(preferences, parsedPreferences::put);</span>
+<span class="fc" id="L105">		CapabilitiesAndPreferencesInjector entry = Optional.ofNullable(EnumUtils.getEnum(CapabilitiesAndPreferencesInjector.class, browser))</span>
+<span class="fc" id="L106">			.orElse(EnumUtils.getEnum(CapabilitiesAndPreferencesInjector.class, StringUtils.deleteWhitespace(desiredCapabilities.getBrowserName())));</span>
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">		if (entry != null) {</span>
+<span class="fc" id="L108">			entry.injector.accept(desiredCapabilities, parsedPreferences);</span>
+		}
+<span class="fc" id="L110">		return desiredCapabilities;</span>
+	}
+
+	private &lt;K, V&gt; void parseFromString(String encodedConfig, BiConsumer&lt;String, String&gt; applier) {
+<span class="fc bfc" id="L114" title="All 2 branches covered.">		if (StringUtils.isBlank(encodedConfig)) {</span>
+<span class="fc" id="L115">			return;</span>
+		}
+<span class="fc" id="L117">		Matcher matcher = WebDriverCapabilitiesHelper.ENCODED_CONFIG_PATTERN.matcher(encodedConfig);</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">		while (matcher.find()) {</span>
+<span class="fc" id="L119">			String value = matcher.group(2);</span>
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">			if (StringUtils.isNotBlank(value)) {</span>
+<span class="fc" id="L121">				applier.accept(matcher.group(NumberUtils.INTEGER_ONE), value);</span>
+			}
+<span class="fc" id="L123">		}</span>
+<span class="fc" id="L124">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
